@@ -1,7 +1,6 @@
 #include <stdlib.h>			//- for exit()
 #include <stdio.h>			//- for sprintf()
 #include <string.h>			//- for memset()
-#include "Colour.h"
 
 #ifdef _WIN32
 	#include "libs/glut.h"
@@ -14,8 +13,9 @@
 	#include <GL/glut.h>
 #endif
 
-//====== Macros and Defines =========
-
+//
+// ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
+//
 #define FRAME_WIDE	1000
 #define FRAME_HIGH	600
 #define ROUND(x) ((int)(x+0.5)) 
@@ -25,7 +25,9 @@ typedef unsigned char BYTE;
 struct POINT2D {int x, y;};
 
 
-// Utility Classes
+//
+// ─── UTILITY CLASSES ────────────────────────────────────────────────────────────
+//
 class Point {
 public:
 	int x;
@@ -51,9 +53,9 @@ public:
 
 };
 
-
-
-//====== Global Variables ==========
+//
+// ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
+//
 BYTE	pFrameL[FRAME_WIDE * FRAME_HIGH * 3];
 BYTE	pFrameR[FRAME_WIDE * FRAME_HIGH * 3];
 int		shade = 0;
@@ -61,7 +63,9 @@ POINT2D	xypos = {0,0};
 int		stereo = 0;
 int		eyes = 10;
 
-//===== Forward Declarations ========
+//
+// ─── FORWARD DECLARATIONS ───────────────────────────────────────────────────────
+//
 void ClearScreen();
 void DrawFrame();
 void Interlace(BYTE* pL, BYTE* pR);
@@ -73,10 +77,11 @@ void reshape(int w, int h);
 void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
 
-////////////////////////////////////////////////////////
-// Program Entry Poinr
-////////////////////////////////////////////////////////
-
+//
+// ────────────────────────────────────────────────────────────────────────────── I ──────────
+//   :::::: P R O G R A M   E N T R Y   P O I N T : :  :   :    :     :        :          :
+// ────────────────────────────────────────────────────────────────────────────────────────
+//
 int main(int argc, char** argv)
 {
 	//-- setup GLUT --
@@ -113,10 +118,9 @@ int main(int argc, char** argv)
 }
 
 
-////////////////////////////////////////////////////////
-// Event Handers
-////////////////////////////////////////////////////////
-      
+//
+// ─── EVENT HANDERS ──────────────────────────────────────────────────────────────
+//  
 void OnIdle(void)
 {
 	DrawFrame();
@@ -147,11 +151,11 @@ void reshape(int w, int h)
 
 void OnMouse(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-	{
-		PlaySoundEffect("Laser.wav"); 
-		if (++shade > 16) shade = 0;	
-	}
+//	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+//	{
+//		PlaySoundEffect("Laser.wav"); 
+//		if (++shade > 16) shade = 0;	
+//	}
 }
 
 void OnKeypress(unsigned char key, int x, int y)
@@ -164,15 +168,13 @@ void OnKeypress(unsigned char key, int x, int y)
 	case '[': eyes--;	break;
 	case 27 : exit(0);
 	}
-	PlaySoundEffect("Whoosh.wav"); 
+	// PlaySoundEffect("Whoosh.wav"); 
 }
 
 
-////////////////////////////////////////////////////////
-// Utility Functions
-////////////////////////////////////////////////////////
-
-
+//
+// ─── UTILITY FUNCTIONS ──────────────────────────────────────────────────────────
+//
 void ClearScreen()
 {
 	memset(pFrameL, 0, FRAME_WIDE * FRAME_HIGH * 3);
@@ -203,6 +205,7 @@ void DrawFrame()
 		Interlace((BYTE*)pFrameL, (BYTE*)pFrameR);
 	}
 }
+
 
 void	PlaySoundEffect(char * filename)		
 {
@@ -259,14 +262,15 @@ void DDA_DrawLine(Point p0, Point p1, Colour colour, BYTE* screen)
 
 }
 
-////////////////////////////////////////////////////////
-// Drawing Function
-////////////////////////////////////////////////////////
-
+//
+// ─── DRAWING FUNCTION ───────────────────────────────────────────────────────────
+//
 void BuildFrame(BYTE *pFrame, int view)
 {
 	BYTE*	screen = (BYTE*)pFrame;		// use copy of screen pointer for safety
 
+	//
+	// ─── CODE FOR PIXEL SNOW ────────────────────────────────────────────────────────
 	// for (int i = 0; i < 10000; i++) {
 	// 	int x = rand() % FRAME_WIDE;
 	// 	int y = rand() % FRAME_HIGH;
@@ -277,6 +281,8 @@ void BuildFrame(BYTE *pFrame, int view)
 	// 	SetPixel(screen, x, y, r, g, b);
 
 	// }
+
+	
 	auto p0 = Point(0, 0);
 	auto p1 = Point(500, 500);
 	auto colour_white = Colour(255, 255, 255);
