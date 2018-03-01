@@ -1,6 +1,7 @@
 #include <stdlib.h>			//- for exit()
 #include <stdio.h>			//- for sprintf()
 #include <string.h>			//- for memset()
+#include <cmath>
 
 #ifdef _WIN32
 	#include "libs/glut.h"
@@ -69,13 +70,13 @@ int		eyes = 10;
 void ClearScreen();
 void DrawFrame();
 void Interlace(BYTE* pL, BYTE* pR);
-void PlaySoundEffect(char * filename);
 void BuildFrame(BYTE *pFrame, int view);
 void OnIdle(void);
 void OnDisplay(void);
-void reshape(int w, int h);
+void Reshape(int w, int h);
 void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
+
 
 //
 // ────────────────────────────────────────────────────────────────────────────── I ──────────
@@ -108,7 +109,7 @@ int main(int argc, char** argv)
 	//-- register call back functions --
 	glutIdleFunc(OnIdle);
 	glutDisplayFunc(OnDisplay);
-	glutReshapeFunc(reshape);
+	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(OnKeypress);
 	glutMouseFunc(OnMouse);
 
@@ -121,29 +122,29 @@ int main(int argc, char** argv)
 //
 // ─── EVENT HANDERS ──────────────────────────────────────────────────────────────
 //  
-void OnIdle(void)
+void OnIdle()
 {
 	DrawFrame();
 	glutPostRedisplay();
 }
 
 
-void OnDisplay(void)
+void OnDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glPixelZoom( 1, -1 );
     glRasterPos2i(0, FRAME_HIGH-1);
-    glDrawPixels(FRAME_WIDE, FRAME_HIGH, GL_RGB,GL_UNSIGNED_BYTE, (GLubyte*)pFrameR);
+    glDrawPixels(FRAME_WIDE, FRAME_HIGH, GL_RGB,GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
     glutSwapBuffers();
     glFlush();
 }
 
-void reshape(int w, int h)
+void Reshape(const int w, const int h)
 {
-	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+	glViewport(0, 0, static_cast<GLsizei>(w), static_cast<GLsizei>(h));
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0.0, (GLdouble) w, 0.0, (GLdouble) h);
+	gluOrtho2D(0.0, static_cast<GLdouble>(w), 0.0, static_cast<GLdouble>(h));
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -184,7 +185,7 @@ void ClearScreen()
 
 void Interlace(BYTE* pL, BYTE* pR)
 {
-	int rowlen = 3 * FRAME_WIDE;
+	const auto rowlen = 3 * FRAME_WIDE;
 	for (int y = 0; y < FRAME_HIGH; y+=2)
 	{
 		for (int x = 0; x < rowlen; x++) *pR++ = *pL++;
@@ -202,45 +203,46 @@ void DrawFrame()
 	else {
 		BuildFrame(pFrameL, -eyes);
 		BuildFrame(pFrameR, +eyes);
-		Interlace((BYTE*)pFrameL, (BYTE*)pFrameR);
+		Interlace(static_cast<BYTE *>(pFrameL), static_cast<BYTE *>(pFrameR));
 	}
 }
 
 
-void	PlaySoundEffect(char * filename)		
-{
-#ifdef _WIN32
-	PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME ); 
-#else
-	char command[80];
-	#ifdef __APPLE__
-		sprintf(command, "afplay %s &", filename);
-	#else
-		sprintf(command, "play %s &", filename);
-	#endif	
-	system(command);
-#endif
-}
+// void	PlaySoundEffect(LPWCSTR filename)		
+// {
+// 	#ifdef _WIN32
+// 		PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME ); 
+// 	#else
+// 		char command[80];
+// 		#ifdef __APPLE__
+// 			sprintf(command, "afplay %s &", filename);
+// 		#else
+// 			sprintf(command, "play %s &", filename);
+// 		#endif	
+// 		system(command);
+// 	#endif
+// }
 
 void SetPixel(BYTE *screen, Point point, Colour colour)
 {
 	// Calculate the position in the 1D Array
-	int position = (point.x + point.y * FRAME_WIDE) * 3;
+	const auto position = (point.x + point.y * FRAME_WIDE) * 3;
 
 	screen[position] = colour.r;
 	screen[position + 1] = colour.g;
 	screen[position + 2] = colour.b;
 }
 
-void DDA_DrawLine(Point p0, Point p1, Colour colour, BYTE* screen)
+void Dda_DrawLine(const Point p0, const Point p1, const Colour colour, BYTE* screen)
 {
-	int x0 = p0.x;
-	int y0 = p0.y;
-	int x1 = p1.x; 
-	int y1 = p1.y;
+	const auto x0 = p0.x;
+	const auto y0 = p0.y;
+	const auto x1 = p1.x; 
+	const auto y1 = p1.y;
 
-	int dx = abs(x1 - x0);
-	int dy = abs(y1 - y0);
+	const auto dx = abs(x1 - x0);
+	const auto dy = abs(y1 - y0);
+
 	int steps;
 	if (abs(dx) > abs(dy)) {
 		steps = abs(dx);
@@ -248,16 +250,16 @@ void DDA_DrawLine(Point p0, Point p1, Colour colour, BYTE* screen)
 		steps = abs(dy);
 	}
 
-	double x_inc = dx / (double) steps;
-	double y_inc = dy / (double) steps;
+	const auto x_inc = dx / static_cast<double>(steps);
+	const auto y_inc = dy / static_cast<double>(steps);
 
 	double x = x0;
 	double y = y0;
 
-	SetPixel(screen, Point(ROUND(x), ROUND(y)), colour);
+	SetPixel(screen, Point(lround(x), lround(y)), colour);
 
-	for (int i = 0; i < steps; i++, x += x_inc, y += y_inc) {
-		SetPixel(screen, Point(ROUND(x), ROUND(y)), colour);
+	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
+		SetPixel(screen, Point(lround(x), lround(y)), colour);
 	}
 
 }
@@ -267,27 +269,23 @@ void DDA_DrawLine(Point p0, Point p1, Colour colour, BYTE* screen)
 //
 void BuildFrame(BYTE *pFrame, int view)
 {
-	BYTE*	screen = (BYTE*)pFrame;		// use copy of screen pointer for safety
+	const auto screen = static_cast<BYTE *>(pFrame);
 
 	//
 	// ─── CODE FOR PIXEL SNOW ────────────────────────────────────────────────────────
-	// for (int i = 0; i < 10000; i++) {
-	// 	int x = rand() % FRAME_WIDE;
-	// 	int y = rand() % FRAME_HIGH;
-	// 	unsigned char r = rand() % 256;
-	// 	unsigned char g = rand() % 256;
-	// 	unsigned char b = rand() % 256;
+	for (auto i = 0; i < 20000; i++) {
+		const auto point = Point(rand() % FRAME_WIDE, rand() % FRAME_HIGH);
+		const auto colour = Colour(rand() % 256, rand() % 256, rand() % 256);
 
-	// 	SetPixel(screen, x, y, r, g, b);
-
-	// }
+		SetPixel(screen, point, colour);
+	}
 
 	
-	auto p0 = Point(0, 0);
-	auto p1 = Point(500, 500);
-	auto colour_white = Colour(255, 255, 255);
+	const auto p0 = Point(0, 0);
+	const auto p1 = Point(600, 500);
+	const auto colour_white = Colour(255, 255, 255);
 
-	DDA_DrawLine(p0, p1, colour_white, screen);
+	Dda_DrawLine(p0, p1, colour_white, screen);
 }
 
 
