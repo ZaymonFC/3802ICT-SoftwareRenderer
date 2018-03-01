@@ -26,12 +26,7 @@
 //
 #define FRAME_WIDE	1000
 #define FRAME_HIGH	600
-#define ROUND(x) ((int)(x+0.5)) 
-
-//====== Structs & typedefs =========
-typedef unsigned char BYTE;
-struct POINT2D {int x, y;};
-
+//#define ROUND(x) ((int)(x+0.5)) 
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
@@ -39,7 +34,7 @@ struct POINT2D {int x, y;};
 BYTE	pFrameL[FRAME_WIDE * FRAME_HIGH * 3];
 BYTE	pFrameR[FRAME_WIDE * FRAME_HIGH * 3];
 int		shade = 0;
-POINT2D	xypos = {0,0};
+auto    xypos = Point(0, 0);
 int		stereo = 0;
 int		eyes = 10;
 
@@ -64,35 +59,37 @@ void OnKeypress(unsigned char key, int x, int y);
 //
 int main(int argc, char** argv)
 {
-	//-- setup GLUT --
+	// ─── SETUP GLUT ─────────────────────────────────────────────────────────────────
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);	//GLUT_3_2_CORE_PROFILE |
 	glutInitWindowSize(FRAME_WIDE, FRAME_HIGH);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(argv[0]);
-/*
-#ifdef WIN32
-	//- eliminate flashing --
-	typedef void (APIENTRY * PFNWGLEXTSWAPCONTROLPROC) (int i);
-	PFNWGLEXTSWAPCONTROLPROC wglSwapControl = NULL;
-	wglSwapControl = (PFNWGLEXTSWAPCONTROLPROC) wglGetProcAddress("wglSwapIntervalEXT");
-	if (wglSwapControl != NULL) wglSwapControl(1); 
-#endif
-*/
 
-	//--- set openGL state --
+	/*
+	#ifdef WIN32
+		//- eliminate flashing --
+		typedef void (APIENTRY * PFNWGLEXTSWAPCONTROLPROC) (int i);
+		PFNWGLEXTSWAPCONTROLPROC wglSwapControl = NULL;
+		wglSwapControl = (PFNWGLEXTSWAPCONTROLPROC) wglGetProcAddress("wglSwapIntervalEXT");
+		if (wglSwapControl != NULL) wglSwapControl(1); 
+	#endif
+	*/
+
+	// ─── SET OPENGL STATE ───────────────────────────────────────────────────────────
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 	glShadeModel(GL_FLAT);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	//-- register call back functions --
+	// ─── REGISTER CALL BACK FUNCTIONS ───────────────────────────────────────────────
 	glutIdleFunc(OnIdle);
 	glutDisplayFunc(OnDisplay);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(OnKeypress);
 	glutMouseFunc(OnMouse);
 
-	//-- run the program
+	//
+	// ─── RUN THE PROGRAM ────────────────────────────────────────────────────────────
 	glutMainLoop();
 	return 0;
 }
@@ -131,22 +128,23 @@ void Reshape(const int w, const int h)
 
 void OnMouse(int button, int state, int x, int y)
 {
-//	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-//	{
-//		PlaySoundEffect("Laser.wav"); 
-//		if (++shade > 16) shade = 0;	
-//	}
+	//	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	//	{
+	//		PlaySoundEffect("Laser.wav"); 
+	//		if (++shade > 16) shade = 0;	
+	//	}
 }
 
 void OnKeypress(unsigned char key, int x, int y)
 {
 	switch (key) 
 	{ 
-	case ' ': xypos.x = xypos.y = 0; break;
-	case 's': stereo ^= 1, eyes = 10;break;
-	case ']': eyes++;	break;
-	case '[': eyes--;	break;
-	case 27 : exit(0);
+		case ' ': xypos.x = xypos.y = 0; break;
+		case 's': stereo ^= 1, eyes = 10;break;
+		case ']': eyes++;	break;
+		case '[': eyes--;	break;
+		case 27 : exit(0);
+		default: ;
 	}
 	// PlaySoundEffect("Whoosh.wav"); 
 }
@@ -154,7 +152,6 @@ void OnKeypress(unsigned char key, int x, int y)
 
 //
 // ─── UTILITY FUNCTIONS ──────────────────────────────────────────────────────────
-//
 void ClearScreen()
 {
 	memset(pFrameL, 0, FRAME_WIDE * FRAME_HIGH * 3);
@@ -247,7 +244,6 @@ void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* scr
 
 //
 // ─── DRAWING FUNCTION ───────────────────────────────────────────────────────────
-//
 void BuildFrame(BYTE *pFrame, int view)
 {
 	const auto screen = static_cast<BYTE *>(pFrame);
