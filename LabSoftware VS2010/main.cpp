@@ -1,7 +1,8 @@
-#include <stdlib.h>			//- for exit()
-#include <stdio.h>			//- for sprintf()
-#include <string.h>			//- for memset()
+#include <cstdlib>			//- for exit()
+#include <cstdio>			//- for sprintf()
+#include <cstring>			//- for memset()
 #include <cmath>
+
 
 #ifdef _WIN32
 	#include "libs/glut.h"
@@ -15,6 +16,12 @@
 #endif
 
 //
+// ─── CLASSES AND TYPES ──────────────────────────────────────────────────────────
+//
+#include "Point.h"
+#include "Colour.h"
+
+//
 // ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
 //
 #define FRAME_WIDE	1000
@@ -25,34 +32,6 @@
 typedef unsigned char BYTE;
 struct POINT2D {int x, y;};
 
-
-//
-// ─── UTILITY CLASSES ────────────────────────────────────────────────────────────
-//
-class Point {
-public:
-	int x;
-	int y;
-
-	Point(int x, int y) {
-		this->x = x;
-		this->y = y;
-	}
-};
-
-class Colour {
-public:
-	int r;
-	int g;
-	int b;
-
-	Colour(int r, int g, int b) {
-		this->r = r;
-		this->g = g;
-		this->b = b;
-	}
-
-};
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
@@ -79,7 +58,7 @@ void OnKeypress(unsigned char key, int x, int y);
 
 
 //
-// ────────────────────────────────────────────────────────────────────────────── I ──────────
+// ───────────────────────────────────────────────────────────────────────────────────────────
 //   :::::: P R O G R A M   E N T R Y   P O I N T : :  :   :    :     :        :          :
 // ────────────────────────────────────────────────────────────────────────────────────────
 //
@@ -186,9 +165,9 @@ void ClearScreen()
 void Interlace(BYTE* pL, BYTE* pR)
 {
 	const auto rowlen = 3 * FRAME_WIDE;
-	for (int y = 0; y < FRAME_HIGH; y+=2)
+	for (auto y = 0; y < FRAME_HIGH; y+=2)
 	{
-		for (int x = 0; x < rowlen; x++) *pR++ = *pL++;
+		for (auto x = 0; x < rowlen; x++) *pR++ = *pL++;
 		pL += rowlen;
 		pR += rowlen;
 	}
@@ -223,6 +202,7 @@ void DrawFrame()
 // 	#endif
 // }
 
+
 void SetPixel(BYTE *screen, Point point, Colour colour)
 {
 	// Calculate the position in the 1D Array
@@ -233,7 +213,8 @@ void SetPixel(BYTE *screen, Point point, Colour colour)
 	screen[position + 2] = colour.b;
 }
 
-void Dda_DrawLine(const Point p0, const Point p1, const Colour colour, BYTE* screen)
+
+void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* screen)
 {
 	const auto x0 = p0.x;
 	const auto y0 = p0.y;
@@ -261,8 +242,8 @@ void Dda_DrawLine(const Point p0, const Point p1, const Colour colour, BYTE* scr
 	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
 		SetPixel(screen, Point(lround(x), lround(y)), colour);
 	}
-
 }
+
 
 //
 // ─── DRAWING FUNCTION ───────────────────────────────────────────────────────────
@@ -280,12 +261,16 @@ void BuildFrame(BYTE *pFrame, int view)
 		SetPixel(screen, point, colour);
 	}
 
-	
-	const auto p0 = Point(0, 0);
-	const auto p1 = Point(600, 500);
-	const auto colour_white = Colour(255, 255, 255);
+	for (auto i = 0; i < 100; i ++)
+	{
+		const auto p0 = Point(rand() % 500, rand() % 300);
+		const auto p1 = Point(rand() % 300, rand() % 300);
+		const auto colour_white = Colour(rand() % 256, rand() % 256, rand() % 256);
 
-	Dda_DrawLine(p0, p1, colour_white, screen);
+		DrawLine_Dda(p0, p1, colour_white, screen);
+	}
+	Sleep(10);
+
 }
 
 
