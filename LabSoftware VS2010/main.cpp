@@ -20,6 +20,7 @@
 //
 #include "Point.h"
 #include "Colour.h"
+//#include "Game.h"
 
 //
 // ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
@@ -59,6 +60,8 @@ void OnKeypress(unsigned char key, int x, int y);
 //
 int main(int argc, char** argv)
 {
+//	auto game = new Game();
+
 	// ─── SETUP GLUT ─────────────────────────────────────────────────────────────────
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);	//GLUT_3_2_CORE_PROFILE |
@@ -250,12 +253,12 @@ void BuildFrame(BYTE *pFrame, int view)
 
 	//
 	// ─── CODE FOR PIXEL SNOW ────────────────────────────────────────────────────────
-	for (auto i = 0; i < 20000; i++) {
-		const auto point = Point(rand() % FRAME_WIDE, rand() % FRAME_HIGH);
-		const auto colour = Colour(rand() % 256, rand() % 256, rand() % 256);
-
-		SetPixel(screen, point, colour);
-	}
+//	for (auto i = 0; i < 20000; i++) {
+//		const auto point = Point(rand() % FRAME_WIDE, rand() % FRAME_HIGH);
+//		const auto colour = Colour(rand() % 256, rand() % 256, rand() % 256);
+//
+//		SetPixel(screen, point, colour);
+//	}
 
 	for (auto i = 0; i < 100; i ++)
 	{
@@ -265,8 +268,7 @@ void BuildFrame(BYTE *pFrame, int view)
 
 		DrawLine_Dda(p0, p1, colour_white, screen);
 	}
-	Sleep(10);
-
+	Sleep(5);
 }
 
 
