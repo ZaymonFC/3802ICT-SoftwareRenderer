@@ -6,6 +6,6 @@ Point::Point(const int x, const int y)
 	this->x = x;
 	this->y = y;
 
-	std::cout << x << ' ' << y << std::endl;
+//	std::cout << x << ' ' << y << std::endl;
 }
 

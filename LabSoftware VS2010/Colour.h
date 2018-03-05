@@ -2,7 +2,9 @@
 class Colour
 {
 public:
-	int r, g, b;
-	Colour(const int r, const int g, const int b);
+	unsigned char r, g, b;
+	Colour(const unsigned char r, const unsigned char g, const unsigned char b);
+
+	Colour Interpolate(Colour colour, int steps, int index) const;
 };
 

@@ -214,7 +214,7 @@ void SetPixel(BYTE *screen, Point point, Colour colour)
 }
 
 
-void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* screen)
+void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* screen, Colour colour2 = Colour(0, 0, 0), bool colourGrade = false)
 {
 	const auto x0 = p0.x;
 	const auto y0 = p0.y;
@@ -240,10 +240,19 @@ void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* scr
 	SetPixel(screen, Point(lround(x), lround(y)), colour);
 
 	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
-		SetPixel(screen, Point(lround(x), lround(y)), colour);
+		if (colourGrade) {
+			SetPixel(screen, Point(lround(x), lround(y)), colour.Interpolate(colour2, steps, i));
+		} else {
+			SetPixel(screen, Point(lround(x), lround(y)), colour);
+		}
+		
 	}
 }
 
+void DrawTriangle()
+{
+	
+}
 
 //
 // ─── DRAWING FUNCTION ───────────────────────────────────────────────────────────
@@ -260,14 +269,18 @@ void BuildFrame(BYTE *pFrame, int view)
 //		SetPixel(screen, point, colour);
 //	}
 
-	for (auto i = 0; i < 100; i ++)
-	{
-		const auto p0 = Point(rand() % 500, rand() % 300);
-		const auto p1 = Point(rand() % 300, rand() % 300);
-		const auto colour_white = Colour(rand() % 256, rand() % 256, rand() % 256);
+//	for (auto i = 0; i < 100; i ++)
+//	{
+//		const auto p0 = Point(rand() % 500, rand() % 300);
+//		const auto p1 = Point(rand() % 300, rand() % 300);
+//		const auto colour_white = Colour(rand() % 256, rand() % 256, rand() % 256);
+//
+//		DrawLine_Dda(p0, p1, colour_white, screen);
+//	}
 
-		DrawLine_Dda(p0, p1, colour_white, screen);
-	}
+	const auto colour_white = Colour(255, 150, 255);
+	const auto colour_black = Colour(0, 0, 62);
+	DrawLine_Dda(Point(0, 0), Point(500, 500), colour_white, screen, colour_black, true);
 	Sleep(5);
 }
 
