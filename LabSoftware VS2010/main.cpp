@@ -2,6 +2,7 @@
 #include <cstdio>			//- for sprintf()
 #include <cstring>			//- for memset()
 #include <cmath>
+#include <iostream>
 
 
 #ifdef _WIN32
@@ -20,6 +21,8 @@
 //
 #include "Point.h"
 #include "Colour.h"
+
+//typedef std::bitset<8> BYTE;
 //#include "Game.h"
 
 //
@@ -214,7 +217,7 @@ void SetPixel(BYTE *screen, Point point, Colour colour)
 }
 
 
-void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* screen, Colour colour2 = Colour(0, 0, 0), bool colourGrade = false)
+void DrawLine_Dda(const Point p0, const Point p1, Colour colour, BYTE* screen, Colour colour2 = Colour(0, 0, 0), bool colourGrade = false)
 {
 	const auto x0 = p0.x;
 	const auto y0 = p0.y;
@@ -241,11 +244,14 @@ void DrawLine_Dda(const Point p0, const Point p1, const Colour colour, BYTE* scr
 
 	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
 		if (colourGrade) {
-			SetPixel(screen, Point(lround(x), lround(y)), colour.Interpolate(colour2, steps, i));
+
+			const auto colourLerp = colour.Interpolate(colour2, steps, i);
+
+			SetPixel(screen, Point(lround(x), lround(y)), colourLerp);
+
 		} else {
 			SetPixel(screen, Point(lround(x), lround(y)), colour);
 		}
-		
 	}
 }
 
@@ -278,9 +284,11 @@ void BuildFrame(BYTE *pFrame, int view)
 //		DrawLine_Dda(p0, p1, colour_white, screen);
 //	}
 
-	const auto colour_white = Colour(255, 150, 255);
-	const auto colour_black = Colour(0, 0, 62);
+	const auto colour_white = Colour(255, 255, 255);
+	const auto colour_black = Colour(0, 0, 0);
 	DrawLine_Dda(Point(0, 0), Point(500, 500), colour_white, screen, colour_black, true);
+
+
 	Sleep(5);
 }
 
