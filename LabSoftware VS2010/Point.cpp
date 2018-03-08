@@ -3,8 +3,8 @@
 
 Point::Point(const int x, const int y)
 {
-	this->x = x;
-	this->y = y;
+	Point::x = x;
+	Point::y = y;
 
 //	std::cout << x << ' ' << y << std::endl;
 }
