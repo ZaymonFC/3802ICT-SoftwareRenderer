@@ -2,7 +2,11 @@
 #include <cstdio>			//- for sprintf()
 #include <cstring>			//- for memset()
 #include <cmath>
+#include <cstdint>
+#include <algorithm>
 #include <iostream>
+#include <iomanip>
+#include <random>
 
 
 #ifdef _WIN32
@@ -255,9 +259,137 @@ void DrawLine_Dda(const Point p0, const Point p1, Colour colour, BYTE* screen, C
 	}
 }
 
-void DrawTriangle()
+double Clamp(const double value, const double minimum = 0, const double maximum = 1)
 {
-	
+	return value > maximum ? 1 : 
+		value < minimum ? 0 : value;
+}
+
+
+// Function to interpolate the value between to points
+double LinearLerp(const double start, const double end, const double gradient)
+{
+	return start + (end - start) * Clamp(gradient);
+}
+
+void DrawScanLine(int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour& colour, BYTE* screen)
+{
+	// Calculate the gradients of the two lines (pa-pb and pc-pd)
+	// (Including the partial segment given at height Y)
+	const double gradAB = pa.y != pb.y ? static_cast<double>(y - pa.y) / (pb.y - pa.y) : 1;
+	const double gradCD = pc.y != pd.y ? static_cast<double>(y - pc.y) / (pd.y - pc.y) : 1;
+
+//	std::cout << "Gradients: " << gradAB << " " << gradCD << std::endl;
+
+	// Calculate the left x
+	const auto sx = static_cast<int>(LinearLerp(pa.x, pb.x, gradAB));
+	const auto ex = static_cast<int>(LinearLerp(pc.x, pd.x, gradCD));
+
+	for (auto x = sx; x <= ex; x++)
+	{
+		SetPixel(screen, Point(x, y), colour);
+//		std::cout << "Pixel " << x << "," << y << std::endl;
+	}
+}
+
+double CrossProduct(double x1, double y1, double x2, double y2)
+{
+	return x1 * y2 - x2 * y1;
+}
+
+double LineSide2D(Point p, Point lineFrom, Point lineTo)
+{
+	return CrossProduct(p.x - lineFrom.x, p.y - lineFrom.y, lineTo.x - lineFrom.x, lineTo.y - lineFrom.y);
+}
+
+void DrawTriangle(Point p1, Point p2, Point p3, Colour colour, BYTE* screen)
+{
+	// Order the points by height
+	if (p1.y > p2.y)
+	{
+//		const auto temp = p2;
+//		p2 = p1;
+//		p1 = temp;
+		std::swap(p1, p2);
+	}
+
+	if (p2.y > p3.y)
+	{
+//		const auto temp = p2;
+//		p2 = p3;
+//		p3 = temp;
+		std::swap(p2, p3);
+	}
+
+	if (p1.y > p2.y)
+	{
+//		const auto temp = p2;
+//		p2 = p1;
+//		p1 = temp;
+		std::swap(p1, p2);
+	}
+
+// REPLACED THIS WITH Cross Product CHECK
+//
+//	// Calculate the inverse slopes between p1 and p2 && p1 and p3
+//	double gp1p2, gp1p3;
+//
+//	// If the points are not at the same y (Avoid divide by 0)
+//	if (p2.y - p1.y > 0)
+//	{
+//		// Inverse slope is deltaX / deltaY
+//		gp1p2 = static_cast<double>(p2.x - p1.x) / (p2.y - p1.y);
+//	} 
+//	else
+//	{
+//		gp1p2 = 0;
+//	}
+//
+//	// Same deal here
+//	if (p3.y - p1.y > 0)
+//	{
+//		gp1p3 = static_cast<double>(p3.x - p1.x) / (p3.y - p1.y);
+//	}
+//	else
+//	{
+//		gp1p3 = 0;
+//	}
+
+	// Draw Triangle - P2 on the left
+	if (LineSide2D(p2, p1, p3) > 0)
+	{
+		for (auto i = p1.y; i <= p3.y; i++)
+		{
+			// Draw the top half
+			if (i < p2.y)
+			{
+				DrawScanLine(i, p1, p3, p1, p2, colour, screen);
+			}
+			// Draw the bottom half
+			else
+			{
+				DrawScanLine(i, p1, p3, p2, p3, colour, screen);
+			}
+			
+		}
+	}
+	// Draw Triangle - P2 on the right
+	else
+	{
+		for (auto i = p1.y; i < p3.y; i++)
+		{
+			// Draw the top half
+			if (i < p2.y)
+			{
+				DrawScanLine(i, p1, p2, p1, p3, colour, screen);
+			}
+			else
+			{
+				DrawScanLine(i, p2, p3, p1, p3, colour, screen);
+			}
+		}
+	}
+
 }
 
 //
@@ -265,16 +397,16 @@ void DrawTriangle()
 void BuildFrame(BYTE *pFrame, int view)
 {
 	const auto screen = static_cast<BYTE *>(pFrame);
-
+//	std::cout << "HELLO" << std::endl;
 	//
-	// ─── CODE FOR PIXEL SNOW ────────────────────────────────────────────────────────
+//	 ─── CODE FOR PIXEL SNOW ────────────────────────────────────────────────────────
 //	for (auto i = 0; i < 20000; i++) {
 //		const auto point = Point(rand() % FRAME_WIDE, rand() % FRAME_HIGH);
 //		const auto colour = Colour(rand() % 256, rand() % 256, rand() % 256);
 //
 //		SetPixel(screen, point, colour);
 //	}
-
+//
 //	for (auto i = 0; i < 100; i ++)
 //	{
 //		const auto p0 = Point(rand() % 500, rand() % 300);
@@ -284,12 +416,17 @@ void BuildFrame(BYTE *pFrame, int view)
 //		DrawLine_Dda(p0, p1, colour_white, screen);
 //	}
 
-	const auto colour_white = Colour(255, 255, 255);
+	const auto colour_white = Colour(100, 255, 100);
 	const auto colour_black = Colour(0, 0, 0);
-	DrawLine_Dda(Point(0, 0), Point(500, 500), colour_white, screen, colour_black, true);
+//	DrawLine_Dda(Point(0, 0), Point(500, 500), colour_white, screen, colour_black, true);
 
+	const auto A = Point(100, 100);
+	const auto B = Point(200, 500);
+	const auto C = Point(750, 300);
 
-	Sleep(5);
+	DrawTriangle(A, B, C, Colour(255, 255, 255), screen);
+
+	Sleep(2);
 }
 
 

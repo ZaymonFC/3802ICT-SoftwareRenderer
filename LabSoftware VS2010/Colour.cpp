@@ -8,11 +8,11 @@ Colour::Colour(unsigned char r, unsigned char g, unsigned char b)
 	Colour::b = b;
 }
 
-Colour Colour::Interpolate(Colour colour, int steps, int index) const
+Colour Colour::Interpolate(const Colour colour, const int steps, const int index) const
 {
-	unsigned char newR = Colour::r + (static_cast<double>(colour.r - Colour::r) / steps) * index;
-	unsigned char newG = Colour::g + (static_cast<double>(colour.g - Colour::g) / steps) * index;
-	unsigned char newB = Colour::b + (static_cast<double>(colour.b - Colour::b) / steps) * index;
+	const unsigned char newR = Colour::r + (static_cast<double>(colour.r - Colour::r) / steps) * index;
+	const unsigned char newG = Colour::g + (static_cast<double>(colour.g - Colour::g) / steps) * index;
+	const unsigned char newB = Colour::b + (static_cast<double>(colour.b - Colour::b) / steps) * index;
 
 	return {newR, newG, newB};
 }
