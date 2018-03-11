@@ -248,11 +248,8 @@ void DrawLine_Dda(const Point p0, const Point p1, Colour colour, BYTE* screen, C
 
 	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
 		if (colourGrade) {
-
 			const auto colourLerp = colour.Interpolate(colour2, steps, i);
-
 			SetPixel(screen, Point(lround(x), lround(y)), colourLerp);
-
 		} else {
 			SetPixel(screen, Point(lround(x), lround(y)), colour);
 		}
@@ -265,7 +262,6 @@ double Clamp(const double value, const double minimum = 0, const double maximum 
 		value < minimum ? 0 : value;
 }
 
-
 // Function to interpolate the value between to points
 double LinearLerp(const double start, const double end, const double gradient)
 {
@@ -275,11 +271,8 @@ double LinearLerp(const double start, const double end, const double gradient)
 void DrawScanLine(int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour& colour, BYTE* screen)
 {
 	// Calculate the gradients of the two lines (pa-pb and pc-pd)
-	// (Including the partial segment given at height Y)
-	const double gradAB = pa.y != pb.y ? static_cast<double>(y - pa.y) / (pb.y - pa.y) : 1;
-	const double gradCD = pc.y != pd.y ? static_cast<double>(y - pc.y) / (pd.y - pc.y) : 1;
-
-//	std::cout << "Gradients: " << gradAB << " " << gradCD << std::endl;
+	const auto gradAB = pa.y != pb.y ? static_cast<double>(y - pa.y) / (pb.y - pa.y) : 1;
+	const auto gradCD = pc.y != pd.y ? static_cast<double>(y - pc.y) / (pd.y - pc.y) : 1;
 
 	// Calculate the left x
 	const auto sx = static_cast<int>(LinearLerp(pa.x, pb.x, gradAB));
@@ -292,7 +285,7 @@ void DrawScanLine(int y, const Point pa, const Point pb, const Point pc, const P
 	}
 }
 
-double CrossProduct(double x1, double y1, double x2, double y2)
+double CrossProduct(const double x1, const double y1, const double x2, const double y2)
 {
 	return x1 * y2 - x2 * y1;
 }
@@ -307,25 +300,16 @@ void DrawTriangle(Point p1, Point p2, Point p3, Colour colour, BYTE* screen)
 	// Order the points by height
 	if (p1.y > p2.y)
 	{
-//		const auto temp = p2;
-//		p2 = p1;
-//		p1 = temp;
 		std::swap(p1, p2);
 	}
 
 	if (p2.y > p3.y)
 	{
-//		const auto temp = p2;
-//		p2 = p3;
-//		p3 = temp;
 		std::swap(p2, p3);
 	}
 
 	if (p1.y > p2.y)
 	{
-//		const auto temp = p2;
-//		p2 = p1;
-//		p1 = temp;
 		std::swap(p1, p2);
 	}
 
@@ -355,7 +339,7 @@ void DrawTriangle(Point p1, Point p2, Point p3, Colour colour, BYTE* screen)
 //		gp1p3 = 0;
 //	}
 
-	// Draw Triangle - P2 on the left
+	// Draw Triangle - P2 on the right
 	if (LineSide2D(p2, p1, p3) > 0)
 	{
 		for (auto i = p1.y; i <= p3.y; i++)
@@ -373,7 +357,7 @@ void DrawTriangle(Point p1, Point p2, Point p3, Colour colour, BYTE* screen)
 			
 		}
 	}
-	// Draw Triangle - P2 on the right
+	// Draw Triangle - P2 on the left
 	else
 	{
 		for (auto i = p1.y; i < p3.y; i++)
@@ -422,7 +406,7 @@ void BuildFrame(BYTE *pFrame, int view)
 
 	const auto A = Point(100, 100);
 	const auto B = Point(200, 500);
-	const auto C = Point(750, 300);
+	const auto C = Point(10, 120);
 
 	DrawTriangle(A, B, C, Colour(255, 255, 255), screen);
 
