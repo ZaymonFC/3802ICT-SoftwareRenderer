@@ -1,11 +1,22 @@
 #include "Colour.h"
 #include <cmath>
 
-Colour::Colour(unsigned char r, unsigned char g, unsigned char b)
+Colour::Colour()
 {
-	Colour::r = r;
-	Colour::g = g;
-	Colour::b = b;
+	r = 255;
+	g = 255;
+	b = 255;
+};
+
+Colour::Colour(const unsigned char r, const unsigned char g, const unsigned char b) : r{r}, g{g}, b{b}
+{	
+}
+
+Colour::Colour(const Colour& other)
+{
+	r = other.r;
+	g = other.g;
+	b = other.g;
 }
 
 Colour Colour::Interpolate(const Colour colour, const int steps, const int index) const

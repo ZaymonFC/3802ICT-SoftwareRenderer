@@ -1,11 +1,11 @@
 #include "Point.h"
-#include <iostream>
 
-Point::Point(const int x, const int y)
+Point::Point(const int x, const int y) : x{x}, y{y}
 {
-	Point::x = x;
-	Point::y = y;
+	colour = Colour(255, 255, 255);
+}
 
-//	std::cout << x << ' ' << y << std::endl;
+Point::Point(int x, int y, Colour colour) : x{x}, y{y}, colour{colour}
+{
 }
 

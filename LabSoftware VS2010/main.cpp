@@ -290,7 +290,7 @@ double CrossProduct(const double x1, const double y1, const double x2, const dou
 	return x1 * y2 - x2 * y1;
 }
 
-double LineSide2D(Point p, Point lineFrom, Point lineTo)
+double LineSide2D(const Point p, const Point lineFrom, const Point lineTo)
 {
 	return CrossProduct(p.x - lineFrom.x, p.y - lineFrom.y, lineTo.x - lineFrom.x, lineTo.y - lineFrom.y);
 }
@@ -312,32 +312,6 @@ void DrawTriangle(Point p1, Point p2, Point p3, Colour colour, BYTE* screen)
 	{
 		std::swap(p1, p2);
 	}
-
-// REPLACED THIS WITH Cross Product CHECK
-//
-//	// Calculate the inverse slopes between p1 and p2 && p1 and p3
-//	double gp1p2, gp1p3;
-//
-//	// If the points are not at the same y (Avoid divide by 0)
-//	if (p2.y - p1.y > 0)
-//	{
-//		// Inverse slope is deltaX / deltaY
-//		gp1p2 = static_cast<double>(p2.x - p1.x) / (p2.y - p1.y);
-//	} 
-//	else
-//	{
-//		gp1p2 = 0;
-//	}
-//
-//	// Same deal here
-//	if (p3.y - p1.y > 0)
-//	{
-//		gp1p3 = static_cast<double>(p3.x - p1.x) / (p3.y - p1.y);
-//	}
-//	else
-//	{
-//		gp1p3 = 0;
-//	}
 
 	// Draw Triangle - P2 on the right
 	if (LineSide2D(p2, p1, p3) > 0)
