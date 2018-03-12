@@ -21,8 +21,7 @@ public:
 	static double LinearLerp(const double start, const double end, const double gradient);
 
 	void DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour& leftColour,
-	                  const Colour& rightColour, BYTE
-	                  * screen) const;
+	                  const Colour& rightColour, BYTE* screen) const;
 
 	static double CrossProduct(const double x1, const double y1, const double x2, const double y2);
 

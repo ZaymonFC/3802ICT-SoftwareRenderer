@@ -18,7 +18,6 @@ void Render::SetPixel(BYTE *screen, Point point, Colour colour) const
 	screen[position + 2] = colour.b;
 }
 
-
 void Render::DrawLine_Dda(const Point p0, const Point p1, BYTE* screen) const
 {
 	const auto x0 = p0.x;
@@ -181,5 +180,4 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 			}
 		}
 	}
-
 }
