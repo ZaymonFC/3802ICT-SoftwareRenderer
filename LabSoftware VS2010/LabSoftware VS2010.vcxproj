@@ -15,11 +15,13 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colour.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="Render.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{327DBF0B-A54A-434B-AC40-EAF035440FC7}</ProjectGuid>
