@@ -159,23 +159,23 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 		for (auto y = p1.y; y < p3.y; y++)
 		{
 			// Calculate the colour on the right edge p1-p3 (Common edge)
-			auto stepsP1P3 = abs(p1.y - p3.y);
-			auto rightColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
+			const auto stepsP1P3 = abs(p1.y - p3.y);
+			const auto rightColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
 
 			// Draw the top half
 			if (y < p2.y)
 			{
 				// Calculate the colour on the left edge p1-p2
-				auto stepsP1P2 = abs(p1.y - p2.y);
-				auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
+				const auto stepsP1P2 = abs(p1.y - p2.y);
+				const auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
 				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour, screen);
 			}
 			else
 			{
 				// Calculate the colour on the left edge p1-p3
-				auto stepsP2P3 = abs(p2.y - p3.y);
-				auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
+				const auto stepsP2P3 = abs(p2.y - p3.y);
+				const auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
 				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour, screen);
 			}
