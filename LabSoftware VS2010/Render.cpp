@@ -148,7 +148,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 				const auto stepsP2P3 = abs(p2.y - p3.y);
 				const auto rightColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
-				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour, screen);
+				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour, screen);
 			}
 
 		}
