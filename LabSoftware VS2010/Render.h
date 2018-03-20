@@ -16,6 +16,10 @@ public:
 
 	void DrawLine_Dda(const Point p0, const Point p1, BYTE * screen) const;
 
+	static int ClipTest(double p, double q, double * u1, double * u2);
+
+	void DrawClipLine(Point p1, Point p2, BYTE * screen) const;
+
 	static double Clamp(const double value, const double minimum, const double maximum);
 
 	static double LinearLerp(const double start, const double end, const double gradient);

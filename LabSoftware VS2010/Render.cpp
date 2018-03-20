@@ -51,6 +51,65 @@ void Render::DrawLine_Dda(const Point p0, const Point p1, BYTE* screen) const
 	}
 }
 
+
+int Render::ClipTest(double p, double q, double * u1, double * u2)
+{
+	const auto r = q / p;
+
+	if (p < 0.0)
+	{
+		if (r > *u2) { return false; }
+		if (r > * u1) {
+			*u1 = r;
+		}
+	}
+	else if (p > 0.0)
+	{
+		if (r < *u1) { return false; }
+		if (r < *u2) {
+			*u2 = r;
+		}
+	}
+	// p == 0 so line is parallel to clip boundary
+	else if (q < 0.0) {
+		return false;
+	}
+
+	return true;
+}
+
+void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
+{
+	auto u1 = 0.0;
+	auto u2 = 1.0;
+	double dx = p2.x - p1.x;
+
+	if (ClipTest(-dx, p1.x - 0, &u1, &u2))
+	{
+		if (ClipTest(dx, static_cast<double>(FRAME_WIDE - p1.x), &u1, &u2))
+		{
+			double dy = p2.y - p1.y;
+			if (ClipTest(-dy, p1.y - 0, &u1, &u2))
+			{
+				if (ClipTest(dy, static_cast<double>(FRAME_HIGH - p1.y), &u1, &u2))
+				{
+					if (u2 < 1.0)
+					{
+						p2.x = p1.x + u2 * dx;
+						p2.y = p1.y + u2 * dy;
+					}
+					if (u1 > 0.0)
+					{
+						p1.x += u1 * dx;
+						p1.y += u1 * dy;
+					}
+					DrawLine_Dda(p1, p2, screen);
+				}
+			}
+		}
+	}
+}
+
 double Render::Clamp(const double value, const double minimum = 0, const double maximum = 1)
 {
 	return value > maximum ? 1 :
