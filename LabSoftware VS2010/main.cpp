@@ -1,8 +1,6 @@
 #include <cstdlib>
 #include <cstring>
 
-
-
 #ifdef _WIN32
 	#include "libs/glut.h"
 //	#include <windows.h>
@@ -190,7 +188,6 @@ void BuildFrame(BYTE *pFrame, int view)
 	const auto p3 = Point(500, 400, Colour(0, 0, 255));
 
 	_render.DrawTriangle(p1, p2, p3, screen);
-
 }
 
 
