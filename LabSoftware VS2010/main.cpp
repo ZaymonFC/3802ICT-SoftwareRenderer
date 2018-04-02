@@ -19,14 +19,13 @@
 #include "Colour.h"
 #include "Render.h"
 
-using BYTE = unsigned char;
 
 //
 // ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
 //
-#define FRAME_WIDE	1280
-#define FRAME_HIGH	720
-//#define ROUND(x) ((int)(x+0.5)) 
+using BYTE = unsigned char;
+const auto FRAME_WIDE = 1280;
+const auto FRAME_HIGH = 720;
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
@@ -37,6 +36,10 @@ int		shade = 0;
 auto    xypos = Point(0, 0);
 int		stereo = 0;
 int		eyes = 10;
+
+/**
+ * \brief Render instance for the graphics application 
+ */
 auto _render = Render(FRAME_WIDE, FRAME_HIGH);
 
 //
@@ -175,7 +178,7 @@ void DrawFrame()
 }
 
 //
-// ─── DRAWING FUNCTION ───────────────────────────────────────────────────────────
+// ─── MAIN LOOP ───────────────────────────────────────────────────────────
 void BuildFrame(BYTE *pFrame, int view)
 {
 	const auto screen = static_cast<BYTE *>(pFrame);
@@ -183,11 +186,46 @@ void BuildFrame(BYTE *pFrame, int view)
 	const auto colour_white = Colour(100, 255, 100);
 	const auto colour_black = Colour(0, 0, 0);
 
+	auto colour_new = Colour();
+
 	const auto p1 = Point(300, 200, Colour(255, 0, 0));
 	const auto p2 = Point(100, 400, Colour(0, 255, 0));
 	const auto p3 = Point(500, 400, Colour(0, 0, 255));
+	auto red = Colour(255, 0, 0);
+	auto green = Colour(0, 255, 0);
+	auto blue = Colour(0, 0, 255);
 
-	_render.DrawTriangle(p1, p2, p3, screen);
+//	const auto points = std::vector<Point>{ Point(0,0, red), Point(200, 0, blue), Point(200, 200), Point(0, 200, green) };
+//	const auto points = std::vector<Point>{
+//		Point(0, 0, red),
+//		Point(100, 0, green),
+//		Point(100, 100),
+//		Point(300, 100),
+//		Point(300, 0),
+//		Point(400, 0),
+//		Point(400, 400),
+//		Point(0, 400, blue)
+//	};
+
+	auto points = std::vector<Point>();
+
+	const auto pointCount = 10;
+	double a = 0, r = 0, x = 0, y = 0;
+	const auto angle = (360.0 / pointCount);
+
+	for (auto i = 0; i < pointCount; i++) {
+		r = rand() % 250;
+
+		a += angle * (3.14159262 / 180);
+
+		x = r * cos(a) + FRAME_WIDE / 2;
+		y = r * sin(a) + FRAME_HIGH / 2;
+
+		points.emplace_back(x, y, Colour(rand() % 255, rand() % 255, rand() % 255));
+	}
+
+	_render.DrawPolygon(points, screen);
+
 }
 
 

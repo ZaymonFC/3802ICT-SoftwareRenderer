@@ -3,9 +3,12 @@
 #include "Point.h"
 
 #include <cstdlib>
+#include <vector>
+#include "DecompositionService.h"
 
 Render::Render(const int width, const int height) : FRAME_WIDE{width}, FRAME_HIGH{height}
 {
+
 }
 
 void Render::SetPixel(BYTE *screen, Point point, Colour colour) const
@@ -45,53 +48,29 @@ void Render::DrawLine_Dda(const Point p0, const Point p1, BYTE* screen) const
 
 	SetPixel(screen, Point(lround(x), lround(y)), p0.colour);
 
-	for (auto i = 0; i < steps; i++, x += x_inc, y += y_inc) {
-			const auto colourLerp = p0.colour.Interpolate(p1.colour, steps, i);
-			SetPixel(screen, Point(lround(x), lround(y)), colourLerp);
+	for (auto i = 0; i < steps; i++) {
+		const auto colourLerp = p0.colour.Interpolate(p1.colour, steps, i);
+		SetPixel(screen, Point(lround(x), lround(y)), colourLerp);
+		x += x_inc;
+		y += y_inc;
 	}
 }
 
-
-int Render::ClipTest(double p, double q, double * u1, double * u2)
-{
-	const auto r = q / p;
-
-	if (p < 0.0)
-	{
-		if (r > *u2) { return false; }
-		if (r > * u1) {
-			*u1 = r;
-		}
-	}
-	else if (p > 0.0)
-	{
-		if (r < *u1) { return false; }
-		if (r < *u2) {
-			*u2 = r;
-		}
-	}
-	// p == 0 so line is parallel to clip boundary
-	else if (q < 0.0) {
-		return false;
-	}
-
-	return true;
-}
 
 void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
 {
 	auto u1 = 0.0;
 	auto u2 = 1.0;
-	double dx = p2.x - p1.x;
+	const double dx = p2.x - p1.x;
 
-	if (ClipTest(-dx, p1.x - 0, &u1, &u2))
+	if (GraphicsMath::ClipTest(-dx, p1.x - 0, &u1, &u2))
 	{
-		if (ClipTest(dx, static_cast<double>(FRAME_WIDE - p1.x), &u1, &u2))
+		if (GraphicsMath::ClipTest(dx, static_cast<double>(FRAME_WIDE - p1.x), &u1, &u2))
 		{
 			double dy = p2.y - p1.y;
-			if (ClipTest(-dy, p1.y - 0, &u1, &u2))
+			if (GraphicsMath::ClipTest(-dy, p1.y - 0, &u1, &u2))
 			{
-				if (ClipTest(dy, static_cast<double>(FRAME_HIGH - p1.y), &u1, &u2))
+				if (GraphicsMath::ClipTest(dy, static_cast<double>(FRAME_HIGH - p1.y), &u1, &u2))
 				{
 					if (u2 < 1.0)
 					{
@@ -110,80 +89,52 @@ void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
 	}
 }
 
-double Render::Clamp(const double value, const double minimum = 0, const double maximum = 1)
-{
-	return value > maximum ? 1 :
-		value < minimum ? 0 : value;
-}
-
-// Function to interpolate the value between to points
-double Render::LinearLerp(const double start, const double end, const double gradient)
-{
-	return start + (end - start) * Clamp(gradient);
-}
 
 void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour&
-                          leftColour, const Colour& rightColour, BYTE* screen) const
+	leftColour, const Colour& rightColour, BYTE* screen) const
 {
+	// CLIP FOR Y
+	if (y < 0 || y > FRAME_HIGH) { return; }
+
 	// Calculate the gradients of the two lines (pa-pb and pc-pd)
 	const auto gradAB = pa.y != pb.y ? static_cast<double>(y - pa.y) / (pb.y - pa.y) : 1;
 	const auto gradCD = pc.y != pd.y ? static_cast<double>(y - pc.y) / (pd.y - pc.y) : 1;
 
 	// Calculate the left x
-	const auto sx = static_cast<int>(LinearLerp(pa.x, pb.x, gradAB));
+	const auto sx = static_cast<int>(GraphicsMath::LinearLerp(pa.x, pb.x, gradAB));
 	// Calculate the right x
-	const auto ex = static_cast<int>(LinearLerp(pc.x, pd.x, gradCD));
-
-	// Calculate left Colour
+	const auto ex = static_cast<int>(GraphicsMath::LinearLerp(pc.x, pd.x, gradCD));
 
 	const auto xWidth = ex - sx;
 	for (auto x = sx; x <= ex; x++)
 	{
+		// CLIP FOR X
+		if (x < 0) { continue; }
+		if (x > FRAME_WIDE) { return; }
+
 		SetPixel(screen, Point(x, y), leftColour.Interpolate(rightColour, xWidth, x - sx));
-		//		std::cout << "Pixel " << x << "," << y << std::endl;
 	}
 }
 
-double Render::CrossProduct(const double x1, const double y1, const double x2, const double y2)
-{
-	return x1 * y2 - x2 * y1;
-}
-
-double Render::LineSide2D(const Point p, const Point lineFrom, const Point lineTo)
-{
-	return CrossProduct(p.x - lineFrom.x, p.y - lineFrom.y, lineTo.x - lineFrom.x, lineTo.y - lineFrom.y);
-}
 
 void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 {
-	// Store and reassign the colour values
-	const auto p1Colour = Colour(p1.colour.r, p1.colour.g, p1.colour.b);
-	const auto p2Colour = Colour(p2.colour.r, p2.colour.g, p2.colour.b);
-	const auto p3Colour = Colour(p3.colour.r, p3.colour.g, p3.colour.b);
-
 	// Order the points by height
 	if (p1.y > p2.y)
 	{
 		std::swap(p1, p2);
 	}
-
 	if (p2.y > p3.y)
 	{
 		std::swap(p2, p3);
 	}
-
 	if (p1.y > p2.y)
 	{
 		std::swap(p1, p2);
 	}
 
-	p1.colour = p1Colour;
-	p2.colour = p2Colour;
-	p3.colour = p3Colour;
-	
-
 	// Draw Triangle - P2 on the right
-	if (LineSide2D(p2, p1, p3) > 0)
+	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
 	{
 		for (auto y = p1.y; y <= p3.y; y++)
 		{
@@ -209,7 +160,6 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 
 				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour, screen);
 			}
-
 		}
 	}
 	// Draw Triangle - P2 on the left
@@ -240,5 +190,20 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 			}
 		}
 	}
+}
 
+
+void Render::DrawPolygon(const std::vector<Point>& points, BYTE * screen) const
+{
+	auto faces = DecompositionService::DecomposePolygon(points);
+
+	for (const auto& face : faces)
+	{
+		DrawTriangle(face.A, face.B, face.C, screen);
+	}
+}
+
+void Render::DrawTriangle(Face face, BYTE * screen) const
+{
+	DrawTriangle(face.A, face.B, face.C, screen);
 }
