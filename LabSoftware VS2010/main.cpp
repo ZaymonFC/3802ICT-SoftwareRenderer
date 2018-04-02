@@ -40,7 +40,7 @@ int		eyes = 10;
 /**
  * \brief Render instance for the graphics application 
  */
-auto _render = Render(FRAME_WIDE, FRAME_HIGH);
+auto _render = Render(FRAME_WIDE, FRAME_HIGH, pFrameR);
 
 //
 // ─── FORWARD DECLARATIONS ───────────────────────────────────────────────────────
@@ -181,8 +181,6 @@ void DrawFrame()
 // ─── MAIN LOOP ───────────────────────────────────────────────────────────
 void BuildFrame(BYTE *pFrame, int view)
 {
-	const auto screen = static_cast<BYTE *>(pFrame);
-
 	const auto colour_white = Colour(100, 255, 100);
 	const auto colour_black = Colour(0, 0, 0);
 
@@ -209,7 +207,7 @@ void BuildFrame(BYTE *pFrame, int view)
 
 	auto points = std::vector<Point>();
 
-	const auto pointCount = 10;
+	const auto pointCount = 15;
 	double a = 0, r = 0, x = 0, y = 0;
 	const auto angle = (360.0 / pointCount);
 
@@ -224,7 +222,7 @@ void BuildFrame(BYTE *pFrame, int view)
 		points.emplace_back(x, y, Colour(rand() % 255, rand() % 255, rand() % 255));
 	}
 
-	_render.DrawPolygon(points, screen);
+	_render.DrawPolygon(points);
 
 }
 

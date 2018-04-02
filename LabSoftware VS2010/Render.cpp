@@ -6,23 +6,23 @@
 #include <vector>
 #include "DecompositionService.h"
 
-Render::Render(const int width, const int height) : FRAME_WIDE{width}, FRAME_HIGH{height}
+Render::Render(const int width, const int height, BYTE * screen) : FRAME_WIDE{width}, FRAME_HIGH{height}, _screen{screen}
 {
 
 }
 
-void Render::SetPixel(BYTE *screen, Point point, Colour colour) const
+void Render::SetPixel(Point point, Colour colour) const
 {
 	// Calculate the position in the 1D Array
 	const auto position = (point.x + point.y * FRAME_WIDE) * 3;
 
-	screen[position] = colour.r;
-	screen[position + 1] = colour.g;
-	screen[position + 2] = colour.b;
+	_screen[position] = colour.r;
+	_screen[position + 1] = colour.g;
+	_screen[position + 2] = colour.b;
 }
 
 
-void Render::DrawLine_Dda(const Point p0, const Point p1, BYTE* screen) const
+void Render::DrawLine_Dda(const Point p0, const Point p1) const
 {
 	const auto x0 = p0.x;
 	const auto y0 = p0.y;
@@ -46,18 +46,18 @@ void Render::DrawLine_Dda(const Point p0, const Point p1, BYTE* screen) const
 	double x = x0;
 	double y = y0;
 
-	SetPixel(screen, Point(lround(x), lround(y)), p0.colour);
+	SetPixel(Point(lround(x), lround(y)), p0.colour);
 
 	for (auto i = 0; i < steps; i++) {
 		const auto colourLerp = p0.colour.Interpolate(p1.colour, steps, i);
-		SetPixel(screen, Point(lround(x), lround(y)), colourLerp);
+		SetPixel(Point(lround(x), lround(y)), colourLerp);
 		x += x_inc;
 		y += y_inc;
 	}
 }
 
 
-void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
+void Render::DrawClipLine(Point p1, Point p2) const
 {
 	auto u1 = 0.0;
 	auto u2 = 1.0;
@@ -82,7 +82,7 @@ void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
 						p1.x += u1 * dx;
 						p1.y += u1 * dy;
 					}
-					DrawLine_Dda(p1, p2, screen);
+					DrawLine_Dda(p1, p2);
 				}
 			}
 		}
@@ -91,7 +91,7 @@ void Render::DrawClipLine(Point p1, Point p2, BYTE * screen) const
 
 
 void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour&
-	leftColour, const Colour& rightColour, BYTE* screen) const
+	leftColour, const Colour& rightColour) const
 {
 	// CLIP FOR Y
 	if (y < 0 || y > FRAME_HIGH) { return; }
@@ -112,12 +112,12 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 		if (x < 0) { continue; }
 		if (x > FRAME_WIDE) { return; }
 
-		SetPixel(screen, Point(x, y), leftColour.Interpolate(rightColour, xWidth, x - sx));
+		SetPixel(Point(x, y), leftColour.Interpolate(rightColour, xWidth, x - sx));
 	}
 }
 
 
-void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
+void Render::DrawTriangle(Point p1, Point p2, Point p3) const
 {
 	// Order the points by height
 	if (p1.y > p2.y)
@@ -149,7 +149,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 				const auto stepsP1P2 = abs(p1.y - p2.y);
 				const auto rightColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
-				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour, screen);
+				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour);
 			}
 			// Draw the bottom half
 			else
@@ -158,7 +158,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 				const auto stepsP2P3 = abs(p2.y - p3.y);
 				const auto rightColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
-				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour, screen);
+				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour);
 			}
 		}
 	}
@@ -178,7 +178,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 				const auto stepsP1P2 = abs(p1.y - p2.y);
 				const auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
-				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour, screen);
+				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour);
 			}
 			else
 			{
@@ -186,24 +186,24 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3, BYTE* screen) const
 				const auto stepsP2P3 = abs(p2.y - p3.y);
 				const auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
-				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour, screen);
+				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour);
 			}
 		}
 	}
 }
 
 
-void Render::DrawPolygon(const std::vector<Point>& points, BYTE * screen) const
+void Render::DrawPolygon(const std::vector<Point>& points) const
 {
 	auto faces = DecompositionService::DecomposePolygon(points);
 
 	for (const auto& face : faces)
 	{
-		DrawTriangle(face.A, face.B, face.C, screen);
+		DrawTriangle(face.A, face.B, face.C);
 	}
 }
 
-void Render::DrawTriangle(Face face, BYTE * screen) const
+void Render::DrawTriangle(Face face) const
 {
-	DrawTriangle(face.A, face.B, face.C, screen);
+	DrawTriangle(face.A, face.B, face.C);
 }
