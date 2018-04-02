@@ -23,3 +23,8 @@ Colour Colour::Interpolate(const Colour colour, const int steps, const int index
 
 	return {newR, newG, newB};
 }
+
+bool Colour::operator==(const Colour& otherColour) const
+{
+	return (r == otherColour.r && g == otherColour.g && b == otherColour.b);
+}

@@ -12,14 +12,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Colour.cpp" />
+    <ClCompile Include="DecompositionService.cpp" />
+    <ClCompile Include="Face.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GraphicsMath.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colour.h" />
+    <ClInclude Include="DecompositionService.h" />
+    <ClInclude Include="Face.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GraphicsMath.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Render.h" />
   </ItemGroup>
