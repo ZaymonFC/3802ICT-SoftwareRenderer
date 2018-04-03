@@ -17,6 +17,8 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GraphicsMath.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Render.cpp" />
   </ItemGroup>
@@ -26,6 +28,8 @@
     <ClInclude Include="Face.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsMath.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Render.h" />
   </ItemGroup>
