@@ -18,6 +18,7 @@
 #include "Point.h"
 #include "Colour.h"
 #include "Render.h"
+#include "MeshLoader.h"
 
 
 //
@@ -222,8 +223,10 @@ void BuildFrame(BYTE *pFrame, int view)
 		points.emplace_back(x, y, Colour(rand() % 255, rand() % 255, rand() % 255));
 	}
 
-	_render.DrawPolygon(points);
 
+	_render.DrawPolygon(points);
+	auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
+	auto temp = 0;
 }
 
 
