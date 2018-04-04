@@ -13,6 +13,8 @@ public:
 
 	Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons);
 
+	void Translate(int xAmount, int yAmount, int zAmount);
+
 	~Mesh() = default;
 };
 

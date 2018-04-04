@@ -3,6 +3,8 @@
 #include <fstream>
 #include <filesystem>
 #include <iostream>
+#include "Mesh.h"
+#include "Point.h"
 
 
 Mesh MeshLoader::LoadMesh(std::string fileName)
@@ -17,8 +19,8 @@ Mesh MeshLoader::LoadMesh(std::string fileName)
 	}
 
 	json jsonMesh;
-	fileStream >> jsonMesh;
 
+	fileStream >> jsonMesh;
 	fileStream.close();
 
 	const auto vertexCount = jsonMesh["VertexCount"].get<int>();
@@ -37,6 +39,7 @@ Mesh MeshLoader::LoadMesh(std::string fileName)
 	{
 		polygons.emplace_back(p);
 	}
+
 
 	return Mesh(vertexCount, polygonCount, vertices, polygons);
 }

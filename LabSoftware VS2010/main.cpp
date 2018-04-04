@@ -55,7 +55,13 @@ void OnDisplay(void);
 void Reshape(int w, int h);
 void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
+void SpecialInput(int key, int x, int y);
 
+
+//
+// ─── Meshes ───────────────────────────────────────────────────────
+//
+auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
 
 //
 // ───────────────────────────────────────────────────────────────────────────────────────────
@@ -84,6 +90,10 @@ int main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(OnKeypress);
 	glutMouseFunc(OnMouse);
+	glutSpecialFunc(SpecialInput);
+
+	mesh.Translate(500, 500, 1000);
+
 
 	//
 	// ─── RUN THE PROGRAM ────────────────────────────────────────────────────────────
@@ -132,7 +142,7 @@ void OnMouse(int button, int state, int x, int y)
 	//	}
 }
 
-void OnKeypress(unsigned char key, int x, int y)
+void OnKeypress(const unsigned char key, int x, int y)
 {
 	switch (key) 
 	{ 
@@ -143,7 +153,14 @@ void OnKeypress(unsigned char key, int x, int y)
 		case 27 : exit(0);
 		default: ;
 	}
-	// PlaySoundEffect("Whoosh.wav"); 
+}
+
+void SpecialInput(int key, int x, int y)
+{
+	if (key == GLUT_KEY_RIGHT) mesh.Translate(20, 0, 0);
+	if (key == GLUT_KEY_LEFT)  mesh.Translate(-20, 0, 0);
+	if (key == GLUT_KEY_UP)    mesh.Translate(0, -20, 0);
+	if (key == GLUT_KEY_DOWN)  mesh.Translate(0, 20, 0);
 }
 
 //
@@ -182,17 +199,17 @@ void DrawFrame()
 // ─── MAIN LOOP ───────────────────────────────────────────────────────────
 void BuildFrame(BYTE *pFrame, int view)
 {
-	const auto colour_white = Colour(100, 255, 100);
-	const auto colour_black = Colour(0, 0, 0);
+//	const auto colour_white = Colour(100, 255, 100);
+//	const auto colour_black = Colour(0, 0, 0);
+//
+//	auto colour_new = Colour();
 
-	auto colour_new = Colour();
-
-	const auto p1 = Point(300, 200, Colour(255, 0, 0));
-	const auto p2 = Point(100, 400, Colour(0, 255, 0));
-	const auto p3 = Point(500, 400, Colour(0, 0, 255));
-	auto red = Colour(255, 0, 0);
-	auto green = Colour(0, 255, 0);
-	auto blue = Colour(0, 0, 255);
+//	const auto p1 = Point(300, 200, Colour(255, 0, 0));
+//	const auto p2 = Point(100, 400, Colour(0, 255, 0));
+//	const auto p3 = Point(500, 400, Colour(0, 0, 255));
+//	auto red = Colour(255, 0, 0);
+//	auto green = Colour(0, 255, 0);
+//	auto blue = Colour(0, 0, 255);
 
 //	const auto points = std::vector<Point>{ Point(0,0, red), Point(200, 0, blue), Point(200, 200), Point(0, 200, green) };
 //	const auto points = std::vector<Point>{
@@ -206,27 +223,28 @@ void BuildFrame(BYTE *pFrame, int view)
 //		Point(0, 400, blue)
 //	};
 
-	auto points = std::vector<Point>();
+//	auto points = std::vector<Point>();
+//
+//	const auto pointCount = 9;
+//	double a = 0, x = 0, y = 0;
+//	const auto angle = (360.0 / pointCount);
+//
+//	for (auto i = 0; i < pointCount; i++) {
+//		const auto r = rand() % 250;
+//
+//		a += angle * (3.14159262 / 180);
+//
+//		x = r * cos(a) + static_cast<double>(FRAME_WIDE) / 2;
+//		y = r * sin(a) + static_cast<double>(FRAME_HIGH) / 2;
+//
+//		points.emplace_back(x, y, 100, Colour(rand() % 255, rand() % 255, rand() % 255));
+//	}
+//
+//	_render.DrawPolygon(points);
 
-	const auto pointCount = 15;
-	double a = 0, r = 0, x = 0, y = 0;
-	const auto angle = (360.0 / pointCount);
+	_render.DrawMesh(mesh);
 
-	for (auto i = 0; i < pointCount; i++) {
-		r = rand() % 250;
-
-		a += angle * (3.14159262 / 180);
-
-		x = r * cos(a) + FRAME_WIDE / 2;
-		y = r * sin(a) + FRAME_HIGH / 2;
-
-		points.emplace_back(x, y, Colour(rand() % 255, rand() % 255, rand() % 255));
-	}
-
-
-	_render.DrawPolygon(points);
-	auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
-	auto temp = 0;
+//	_render.ClearZBuffer();
 }
 
 

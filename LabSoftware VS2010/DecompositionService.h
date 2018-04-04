@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "Face.h"
 #include <vector>
-#include "GraphicsMath.h"
 
 class DecompositionService
 {
 public:
-	DecompositionService() = default;
+	static bool ValidateTriangle(const std::vector<Point>& points, const Point& pOrigin, const Point& pPrev, const Point& pNext);
 	static std::vector<Face> DecomposePolygon(std::vector<Point> points);
 };
