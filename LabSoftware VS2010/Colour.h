@@ -10,6 +10,4 @@ public:
 	Colour Interpolate(Colour colour, int steps, int index) const;
 
 	bool operator==(const Colour & otherColour) const;
-
-	~Colour() = default;
 };

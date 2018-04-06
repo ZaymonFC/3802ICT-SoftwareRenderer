@@ -20,9 +20,6 @@
     <ClCompile Include="Colour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

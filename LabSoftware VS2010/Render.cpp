@@ -155,7 +155,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	// Draw Triangle - P2 on the right
 	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
 	{
-		for (auto y = p1.y; y <= p3.y; y++)
+		for (auto y = static_cast<int>(p1.y); y <= p3.y; y++)
 		{
 			// Calculate the colour on the left edge p1-p3 (Common to top and bottom)
 			const auto stepsP1P3 = abs(p1.y - p3.y);
@@ -184,7 +184,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	// Draw Triangle - P2 on the left
 	else
 	{
-		for (auto y = p1.y; y < p3.y; y++)
+		for (auto y = static_cast<int>(p1.y); y < p3.y; y++)
 		{
 			// Calculate the colour on the right edge p1-p3 (Common edge)
 			const auto stepsP1P3 = abs(p1.y - p3.y);
@@ -218,19 +218,19 @@ void Render::DrawPolygon(const std::vector<Point>& points)
 
 	for (const auto& face : faces)
 	{
-		DrawTriangle(face.A, face.B, face.C);
+		DrawTriangle(face.a, face.b, face.c);
 	}
 }
 
 void Render::DrawTriangle(Face face)
 {
-	DrawTriangle(face.A, face.B, face.C);
+	DrawTriangle(face.a, face.b, face.c);
 }
 
 Point Render::ProjectionTransformPoint(std::vector<Point>::const_reference point, const int d) const
 {
-	const auto x = (((point.x - (frame_wide_ / 2)) * d) / (point.z + d)) + (frame_wide_ / 2);
-	const auto y = (((point.y - (frame_high_ / 2)) * d) / (point.z + d)) + (frame_high_ / 2);
+	const auto x = (((point.x - (frame_wide_ / 2.0)) * d) / (point.z + d)) + (frame_wide_ / 2.0);
+	const auto y = (((point.y - (frame_high_ / 2.0)) * d) / (point.z + d)) + (frame_high_ / 2.0);
 	return {x, y, point.z, point.colour};
 }
 

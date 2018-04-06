@@ -4,7 +4,7 @@
 class Face
 {
 public:
-	Point A, B, C;
+	Point a, b, c;
 	Face(Point a, Point b, Point c);
 
 	~Face() = default;

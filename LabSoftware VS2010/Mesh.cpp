@@ -73,4 +73,3 @@ auto Mesh::TransformVertices() const -> std::vector<Point>
 
 	return transformedVertices;
 }
-

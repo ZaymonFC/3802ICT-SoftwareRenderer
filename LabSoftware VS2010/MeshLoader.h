@@ -9,8 +9,5 @@ public:
 	using json = nlohmann::json;
 
 	static Mesh LoadMesh(std::string fileName);
-
-	MeshLoader() = default;
-	~MeshLoader() = default;
 };
 

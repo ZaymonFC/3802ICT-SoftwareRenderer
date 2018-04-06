@@ -8,8 +8,6 @@ Point GraphicsMath::RotatePoint(const Point& point, const int rotationX, const i
 	const auto b = rotationY * 0.0174533;
 	const auto c = rotationZ * 0.0174533;
 
-	// TODO: Handle rotations outside the range of 360
-
 //	const auto x3 = point.x * (cos(b) * cos(c)) +
 //		point.y * (sin(a)* sin(b)* cos(c) - cos(a) * sin(c)) +
 //		point.z * (cos(a) * sin(b) * cos(c) + sin(a) * sin(c));
@@ -91,8 +89,8 @@ int GraphicsMath::ClipTest(double p, double q, double * u1, double * u2)
 
 int GraphicsMath::SameSide(const Point a, const Point b, const Point l1, const Point l2)
 {
-	const double abt = (a.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (a.y - l1.y);
-	const double bpt = (b.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (b.y - l1.y);
+	const auto abt = (a.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (a.y - l1.y);
+	const auto bpt = (b.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (b.y - l1.y);
 
 	return abt * bpt > 0;
 }

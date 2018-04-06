@@ -14,7 +14,6 @@
     <ClCompile Include="Colour.cpp" />
     <ClCompile Include="DecompositionService.cpp" />
     <ClCompile Include="Face.cpp" />
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GraphicsMath.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />

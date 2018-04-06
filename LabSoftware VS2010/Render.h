@@ -23,11 +23,11 @@ public:
 
 	void ClearZBuffer();
 
-	void DrawLine_Dda(const Point p0, const Point p1);
+	void DrawLine_Dda(Point p0, Point p1);
 
 	void DrawClipLine(Point p1, Point p2);
 
-	void DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour& leftColour,
+	void DrawScanLine(int y, Point pa, Point pb, Point pc, Point pd, const Colour& leftColour,
 	                  const Colour& rightColour);
 
 	void DrawTriangle(Point p1, Point p2, Point p3);
@@ -39,7 +39,5 @@ public:
 	Point ProjectionTransformPoint(std::vector<Point>::const_reference point, int d) const;
 
 	void DrawMesh(Mesh mesh);
-
-	~Render() = default;
 };
 
