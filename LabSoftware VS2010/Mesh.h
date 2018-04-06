@@ -1,11 +1,21 @@
 #pragma once
 #include <vector>
 #include "Point.h"
-#include "Face.h"
 
+/**
+* Container class for mesh and mesh operations such as translation and rotation
+*/
 class Mesh
 {
+	int x;
+	int y;
+	int z;
 public:
+	int rotationX;
+	int rotationY;
+	int rotationZ;
+	double scaleFactor;
+
 	int vertexCount;
 	int polygonCount;
 	std::vector<Point> vertices;
@@ -14,7 +24,10 @@ public:
 	Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons);
 
 	void Translate(int xAmount, int yAmount, int zAmount);
+	auto TransformVertices() const -> std::vector<Point>;
 
-	~Mesh() = default;
+	auto Rotate(int xAmount, int yAmount, int zAmount) -> void;
+	auto Scale(double scaleFactor) -> void;
+
 };
 

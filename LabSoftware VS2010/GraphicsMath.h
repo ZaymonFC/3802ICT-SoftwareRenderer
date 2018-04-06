@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 class Point;
 
@@ -7,6 +8,8 @@ class GraphicsMath
 public:
 	GraphicsMath() = default;
 	~GraphicsMath() = default;
+
+	static Point RotatePoint(const Point& point, const int rotationX, const int rotationY, const int rotationZ);
 
 	static double Clamp(const double value, const double minimum, const double maximum);
 	static double LinearLerp(const double start, const double end, const double gradient);

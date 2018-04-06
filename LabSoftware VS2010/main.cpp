@@ -16,23 +16,23 @@
 // ─── CLASSES AND TYPES ──────────────────────────────────────────────────────────
 //
 #include "Point.h"
-#include "Colour.h"
 #include "Render.h"
 #include "MeshLoader.h"
+#include <iostream>
 
 
 //
 // ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
 //
 using BYTE = unsigned char;
-const auto FRAME_WIDE = 1280;
-const auto FRAME_HIGH = 720;
+const auto frame_wide = 1280;
+const auto frame_high = 720;
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
 //
-BYTE	pFrameL[FRAME_WIDE * FRAME_HIGH * 3];
-BYTE	pFrameR[FRAME_WIDE * FRAME_HIGH * 3];
+BYTE	pFrameL[frame_wide * frame_high * 3];
+BYTE	pFrameR[frame_wide * frame_high * 3];
 int		shade = 0;
 auto    xypos = Point(0, 0);
 int		stereo = 0;
@@ -41,7 +41,7 @@ int		eyes = 10;
 /**
  * \brief Render instance for the graphics application 
  */
-auto _render = Render(FRAME_WIDE, FRAME_HIGH, pFrameR);
+auto _render = Render(frame_wide, frame_high, 1200, pFrameR);
 
 //
 // ─── FORWARD DECLARATIONS ───────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 	// ─── SETUP GLUT ─────────────────────────────────────────────────────────────────
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);	//GLUT_3_2_CORE_PROFILE |
-	glutInitWindowSize(FRAME_WIDE, FRAME_HIGH);
+	glutInitWindowSize(frame_wide, frame_high);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow(argv[0]);
 
@@ -116,8 +116,8 @@ void OnDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glPixelZoom( 1, -1 );
-    glRasterPos2i(0, FRAME_HIGH-1);
-    glDrawPixels(FRAME_WIDE, FRAME_HIGH, GL_RGB,GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
+    glRasterPos2i(0, frame_high-1);
+    glDrawPixels(frame_wide, frame_high, GL_RGB,GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
     glutSwapBuffers();
     glFlush();
 }
@@ -147,9 +147,15 @@ void OnKeypress(const unsigned char key, int x, int y)
 	switch (key) 
 	{ 
 		case ' ': xypos.x = xypos.y = 0; break;
-		case 's': stereo ^= 1, eyes = 10;break;
+//		case 's': stereo ^= 1, eyes = 10;break;
 		case ']': eyes++;	break;
 		case '[': eyes--;	break;
+		case 'w': mesh.Rotate(-10, 0, 0); break;
+		case 's': mesh.Rotate(10, 0, 0); break;
+		case 'a': mesh.Rotate(0, 0, 10); break;
+		case 'd': mesh.Rotate(0, 0, -10); break;
+		case 'x': mesh.Rotate(0, -10, 0); break;
+		case 'z': mesh.Rotate(0, 10, 0); break;
 		case 27 : exit(0);
 		default: ;
 	}
@@ -157,25 +163,28 @@ void OnKeypress(const unsigned char key, int x, int y)
 
 void SpecialInput(int key, int x, int y)
 {
-	if (key == GLUT_KEY_RIGHT) mesh.Translate(20, 0, 0);
-	if (key == GLUT_KEY_LEFT)  mesh.Translate(-20, 0, 0);
-	if (key == GLUT_KEY_UP)    mesh.Translate(0, -20, 0);
-	if (key == GLUT_KEY_DOWN)  mesh.Translate(0, 20, 0);
+	if (key == GLUT_KEY_RIGHT)     mesh.Translate(40, 0, 0);
+	if (key == GLUT_KEY_LEFT)      mesh.Translate(-40, 0, 0);
+	if (key == GLUT_KEY_UP)        mesh.Translate(0, -40, 0);
+	if (key == GLUT_KEY_DOWN)      mesh.Translate(0, 40, 0);
+	if (key == GLUT_KEY_PAGE_UP)   mesh.Scale(0.1);
+	if (key == GLUT_KEY_PAGE_DOWN) mesh.Scale(-0.1);
+//	std::cout << "Roation: x: " << mesh.rotationX << " y:" << mesh.rotationY << " z:" << mesh.rotationZ << std::endl;
 }
 
 //
 // ─── UTILITY FUNCTIONS ──────────────────────────────────────────────────────────
 void ClearScreen()
 {
-	memset(pFrameL, 0, FRAME_WIDE * FRAME_HIGH * 3);
-	memset(pFrameR, 0, FRAME_WIDE * FRAME_HIGH * 3);
+	memset(pFrameL, 0, frame_wide * frame_high * 3);
+	memset(pFrameR, 0, frame_wide * frame_high * 3);
 }
 
 
 void Interlace(BYTE* pL, BYTE* pR)
 {
-	const auto rowlen = 3 * FRAME_WIDE;
-	for (auto y = 0; y < FRAME_HIGH; y+=2)
+	const auto rowlen = 3 * frame_wide;
+	for (auto y = 0; y < frame_high; y+=2)
 	{
 		for (auto x = 0; x < rowlen; x++) *pR++ = *pL++;
 		pL += rowlen;
@@ -232,10 +241,10 @@ void BuildFrame(BYTE *pFrame, int view)
 //	for (auto i = 0; i < pointCount; i++) {
 //		const auto r = rand() % 250;
 //
-//		a += angle * (3.14159262 / 180);
+//		a -= angle * (3.14159262 / 180);
 //
-//		x = r * cos(a) + static_cast<double>(FRAME_WIDE) / 2;
-//		y = r * sin(a) + static_cast<double>(FRAME_HIGH) / 2;
+//		x = r * cos(a) + static_cast<double>(frame_wide) / 2;
+//		y = r * sin(a) + static_cast<double>(frame_high) / 2;
 //
 //		points.emplace_back(x, y, 100, Colour(rand() % 255, rand() % 255, rand() % 255));
 //	}

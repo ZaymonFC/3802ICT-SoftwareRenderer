@@ -1,6 +1,34 @@
 #include "GraphicsMath.h"
 #include "Point.h"
 
+Point GraphicsMath::RotatePoint(const Point& point, const int rotationX, const int rotationY, const int rotationZ)
+{
+	// Degress to rad conversions
+	const auto a = rotationX * 0.0174533;
+	const auto b = rotationY * 0.0174533;
+	const auto c = rotationZ * 0.0174533;
+
+	// TODO: Handle rotations outside the range of 360
+
+//	const auto x3 = point.x * (cos(b) * cos(c)) +
+//		point.y * (sin(a)* sin(b)* cos(c) - cos(a) * sin(c)) +
+//		point.z * (cos(a) * sin(b) * cos(c) + sin(a) * sin(c));
+//	
+//	const auto y3 = point.x * (cos(b) * sin(c)) +
+//		point.y * (sin(a) * sin(b) * sin(c) + cos(a) * cos(c)) +
+//		point.z * (cos(a) * sin(b) * sin(c) - sin(a) * cos(c));
+//
+//	const auto z3 = point.x * sin(b) + point.y * sin(a) * cos(b) + point.z * cos(a) * cos(b);
+
+	
+	const auto x3 = point.x * (cos(b) * cos(c)) + point.z * sin(b) - point.y * (cos(b) * sin(c));
+	const auto y3 = -point.z * (cos(b) * sin(a)) + point.x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + point.y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
+	const auto z3 = point.z * (cos(a) * cos(b)) + point.x * (sin(a) * sin(c) - cos(a) * cos(c) * sin(b)) + point.y * (cos(c) * sin(a) + cos(a) * sin(b) * sin(c));
+
+
+	return {x3, y3, z3, point.colour};
+}
+
 double GraphicsMath::Clamp(const double value, const double minimum = 0, const double maximum = 1)
 {
 	return value > maximum ? 1 :

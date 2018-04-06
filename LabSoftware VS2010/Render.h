@@ -11,11 +11,13 @@ class Face;
 class Render
 {
 	using BYTE = unsigned char;
-	const int FRAME_WIDE, FRAME_HIGH;
+	const int frame_wide_;
+	const int frame_high_;
+	const int vanishingPointOffset_;
 	BYTE * _screen;
 	std::vector<int> _zBuffer;
 public:
-	Render(int width, int height, BYTE * screen);
+	Render(int width, int height, int vanishingPointOffset, BYTE * screen);
 
 	void SetPixel(Point point, Colour colour);
 
@@ -34,7 +36,7 @@ public:
 
 	void DrawTriangle(Face face);
 
-	Point TransformPoint(std::vector<Point>::const_reference point, int d);
+	Point ProjectionTransformPoint(std::vector<Point>::const_reference point, int d) const;
 
 	void DrawMesh(Mesh mesh);
 

@@ -1,21 +1,29 @@
 #include "Point.h"
 
-Point::Point(const int x, const int y) : x{x}, y{y}
+Point::Point()
+{
+	x = 0;
+	y = 0;
+	z = 0;
+	colour = Colour(255, 255, 255);
+}
+
+Point::Point(const double x, const double y) : x{x}, y{y}
 {
 	z = 0;
 	colour = Colour(255, 255, 255);
 }
 
-Point::Point(const int x, const int y, const int z) : x {x}, y{y}, z{z}
+Point::Point(const double x, const double y, const double z) : x {x}, y{y}, z{z}
 {
 }
 
-Point::Point(const int x, const int y, const Colour colour) : x{x}, y{y}, colour{colour}
+Point::Point(const double x, const double y, const Colour colour) : x{x}, y{y}, colour{colour}
 {
 	z = 0;
 }
 
-Point::Point(const int x, const int y, const int z, const Colour colour) : x{x}, y{y}, z{z}, colour{colour}
+Point::Point(const double x, const double y, const double z, const Colour colour) : x{x}, y{y}, z{z}, colour{colour}
 {
 }
 

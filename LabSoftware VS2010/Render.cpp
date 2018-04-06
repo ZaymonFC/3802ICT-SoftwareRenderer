@@ -7,7 +7,11 @@
 #include <cstdlib>
 #include <vector>
 
-Render::Render(const int width, const int height, BYTE * screen) : FRAME_WIDE{width}, FRAME_HIGH{height}, _screen{screen}
+Render::Render(const int width, const int height, const int vanishingPointOffset, BYTE * screen) :
+	frame_wide_{ width },
+	frame_high_{ height },
+	vanishingPointOffset_(vanishingPointOffset),
+	_screen { screen }
 {
 	for (auto i = 0; i < width * height; i++)
 	{
@@ -18,8 +22,8 @@ Render::Render(const int width, const int height, BYTE * screen) : FRAME_WIDE{wi
 void Render::SetPixel(Point point, Colour colour)
 {
 	// Calculate the position in the 1D Array
-	const auto position = (point.x + point.y * FRAME_WIDE) * 3;
-	const auto zPosition = (point.x + point.y * FRAME_WIDE);
+	const auto position = (static_cast<int>(point.x) + static_cast<int>(point.y) * frame_wide_) * 3;
+	const auto zPosition = (point.x + point.y * frame_wide_);
 	
 	// Query ZBuffer
 //	if (_zBuffer[zPosition] > point.z) return;
@@ -80,12 +84,12 @@ void Render::DrawClipLine(Point p1, Point p2)
 
 	if (GraphicsMath::ClipTest(-dx, p1.x - 0, &u1, &u2))
 	{
-		if (GraphicsMath::ClipTest(dx, static_cast<double>(FRAME_WIDE - p1.x), &u1, &u2))
+		if (GraphicsMath::ClipTest(dx, static_cast<double>(frame_wide_ - p1.x), &u1, &u2))
 		{
 			const double dy = p2.y - p1.y;
 			if (GraphicsMath::ClipTest(-dy, p1.y - 0, &u1, &u2))
 			{
-				if (GraphicsMath::ClipTest(dy, static_cast<double>(FRAME_HIGH - p1.y), &u1, &u2))
+				if (GraphicsMath::ClipTest(dy, static_cast<double>(frame_high_ - p1.y), &u1, &u2))
 				{
 					if (u2 < 1.0)
 					{
@@ -109,7 +113,7 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 	leftColour, const Colour& rightColour)
 {
 	// CLIP FOR Y
-	if (y < 0 || y > FRAME_HIGH - 1) { return; }
+	if (y < 0 || y > frame_high_ - 1) { return; }
 
 	// Calculate the gradients of the two lines (pa-pb and pc-pd)
 	const auto gradAB = pa.y != pb.y ? static_cast<double>(y - pa.y) / (pb.y - pa.y) : 1;
@@ -125,7 +129,7 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 	{
 		// CLIP FOR X
 		if (x < 0) { continue; }
-		if (x > FRAME_WIDE - 1) { return; }
+		if (x > frame_wide_ - 1) { return; }
 
 		SetPixel(Point(x, y), leftColour.Interpolate(rightColour, xWidth, x - sx));
 	}
@@ -223,22 +227,24 @@ void Render::DrawTriangle(Face face)
 	DrawTriangle(face.A, face.B, face.C);
 }
 
-Point Render::TransformPoint(std::vector<Point>::const_reference point, const int d)
+Point Render::ProjectionTransformPoint(std::vector<Point>::const_reference point, const int d) const
 {
-	const auto x = (((point.x - (FRAME_WIDE / 2)) * d) / (point.z + d)) + (FRAME_WIDE / 2);
-	const auto y = (((point.y - (FRAME_HIGH / 2)) * d) / (point.z + d)) + (FRAME_HIGH / 2);
+	const auto x = (((point.x - (frame_wide_ / 2)) * d) / (point.z + d)) + (frame_wide_ / 2);
+	const auto y = (((point.y - (frame_high_ / 2)) * d) / (point.z + d)) + (frame_high_ / 2);
 	return {x, y, point.z, point.colour};
 }
 
 void Render::DrawMesh(Mesh mesh)
 {
+	auto translatedPoints = mesh.TransformVertices();
+
 	auto faces = std::vector<Face>();
 	for (const auto& polygon : mesh.polygons)
 	{
 		auto transformedPoints = std::vector<Point>();
 		for (auto index : polygon)
 		{
-			transformedPoints.push_back(TransformPoint(mesh.vertices[index], 500));
+			transformedPoints.push_back(ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_));
 		}
 
 		for (const auto& face : DecompositionService::DecomposePolygon(transformedPoints))
