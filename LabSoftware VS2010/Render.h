@@ -36,8 +36,6 @@ public:
 
 	void DrawTriangle(Face face);
 
-	Point ProjectionTransformPoint(std::vector<Point>::const_reference point, int d) const;
-
 	void DrawMesh(Mesh mesh);
 };
 

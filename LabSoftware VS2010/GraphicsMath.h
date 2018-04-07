@@ -7,6 +7,7 @@ class GraphicsMath
 {
 public:
 	static Point RotatePoint(const Point& point, float a, float b, float c);
+	static Point ProjectionTransformPoint(std::vector<Point>::const_reference point, int, int frame_wide, int frame_high);
 
 	static float Clamp(float value,  float minimum,  float maximum);
 	static float LinearLerp(float start, float end, float gradient);

@@ -211,7 +211,6 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	}
 }
 
-
 void Render::DrawPolygon(const std::vector<Point>& points)
 {
 	auto faces = DecompositionService::DecomposePolygon(points);
@@ -227,13 +226,6 @@ void Render::DrawTriangle(Face face)
 	DrawTriangle(face.a, face.b, face.c);
 }
 
-Point Render::ProjectionTransformPoint(std::vector<Point>::const_reference point, const int d) const
-{
-	const auto x = (((point.x - (frame_wide_ / 2.0f)) * d) / (point.z + d)) + (frame_wide_ / 2.0f);
-	const auto y = (((point.y - (frame_high_ / 2.0f)) * d) / (point.z + d)) + (frame_high_ / 2.0f);
-	return {x, y, point.z, point.colour};
-}
-
 void Render::DrawMesh(Mesh mesh)
 {
 	auto translatedPoints = mesh.TransformVertices();
@@ -244,7 +236,7 @@ void Render::DrawMesh(Mesh mesh)
 		auto transformedPoints = std::vector<Point>();
 		for (auto index : polygon)
 		{
-			transformedPoints.push_back(ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_));
+			transformedPoints.push_back(GraphicsMath::ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_, frame_wide_, frame_high_));
 		}
 
 		for (const auto& face : DecompositionService::DecomposePolygon(transformedPoints))

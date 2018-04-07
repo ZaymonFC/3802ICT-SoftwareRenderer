@@ -11,13 +11,21 @@
  */
 Point GraphicsMath::RotatePoint(const Point& point, const float a, const float b, const float c)
 {
-	const float x3 = point.x * (cos(b) * cos(c)) + point.z * sin(b) - point.y * (cos(b) * sin(c));
-	const float y3 = -point.z * (cos(b) * sin(a)) + point.x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + point.y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
-	const float z3 = point.z * (cos(a) * cos(b)) + point.x * (sin(a) * sin(c) - cos(a) * cos(c) * sin(b)) + point.y * (cos(c) * sin(a) + cos(a) * sin(b) * sin(c));
+	const auto x3 = point.x * (cos(b) * cos(c)) + point.z * sin(b) - point.y * (cos(b) * sin(c));
+	const auto y3 = -point.z * (cos(b) * sin(a)) + point.x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + point.y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
+	const auto z3 = point.z * (cos(a) * cos(b)) + point.x * (sin(a) * sin(c) - cos(a) * cos(c) * sin(b)) + point.y * (cos(c) * sin(a) + cos(a) * sin(b) * sin(c));
 
 //	std::cout << a << b << c;
 	return {x3, y3, z3, point.colour};
 }
+
+Point GraphicsMath::ProjectionTransformPoint(std::vector<Point>::const_reference point, const int d, int frame_wide_, int frame_high_)
+{
+	const auto x = (((point.x - (frame_wide_ / 2.0f)) * d) / (point.z + d)) + (frame_wide_ / 2.0f);
+	const auto y = (((point.y - (frame_high_ / 2.0f)) * d) / (point.z + d)) + (frame_high_ / 2.0f);
+	return { x, y, point.z, point.colour };
+}
+
 
 float GraphicsMath::Clamp(const float value, const float minimum = 0, const float maximum = 1)
 {

@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
 
 #ifdef _WIN32
 	#include "libs/glut.h"
