@@ -7,13 +7,13 @@
 class Point
 {
 public:
-	double x, y, z;
+	float x, y, z;
 	Colour colour;
 
 	Point();
-	Point(double x, double y);
-	Point(double x, double y, double z);
-	Point(double x, double y, Colour colour);
-	Point(double x, double y, double z, Colour colour);
+	Point(float x, float y);
+	Point(float x, float y, float z);
+	Point(float x, float y, Colour colour);
+	Point(float x, float y, float z, Colour colour);
 	bool operator==(const Point & otherPoint) const;
 };

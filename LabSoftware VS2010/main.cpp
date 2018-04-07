@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 
 #ifdef _WIN32
 	#include "libs/glut.h"
@@ -27,6 +28,12 @@
 using BYTE = unsigned char;
 const auto frame_wide = 1280;
 const auto frame_high = 720;
+
+
+ constexpr float Degrees(const float f)
+ {
+	 return  f * (3.141592653589793238462643383279502884f / 180.0f);
+ }
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
@@ -62,6 +69,7 @@ void SpecialInput(int key, int x, int y);
 // ─── Meshes ───────────────────────────────────────────────────────
 //
 auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
+int frameCount = 0;
 
 //
 // ───────────────────────────────────────────────────────────────────────────────────────────
@@ -150,15 +158,16 @@ void OnKeypress(const unsigned char key, int x, int y)
 //		case 's': stereo ^= 1, eyes = 10;break;
 		case ']': eyes++;	break;
 		case '[': eyes--;	break;
-		case 'w': mesh.Rotate(-10, 0, 0); break;
-		case 's': mesh.Rotate(10, 0, 0); break;
-		case 'a': mesh.Rotate(0, 0, 10); break;
-		case 'd': mesh.Rotate(0, 0, -10); break;
-		case 'x': mesh.Rotate(0, -10, 0); break;
-		case 'z': mesh.Rotate(0, 10, 0); break;
+		case 'w': mesh.Rotate(Degrees(-10), Degrees(0), Degrees(0)); break;
+		case 's': mesh.Rotate(Degrees(10), Degrees(0), Degrees(0)); break;
+		case 'a': mesh.Rotate(Degrees(0), Degrees(0), Degrees(10)); break;
+		case 'd': mesh.Rotate(Degrees(0), Degrees(0), Degrees(-10)); break;
+		case 'x': mesh.Rotate(Degrees(0), Degrees(-10), Degrees(0)); break;
+		case 'z': mesh.Rotate(Degrees(0), Degrees(10), Degrees(0)); break;
 		case 27 : exit(0);
 		default: ;
 	}
+	mesh.PrintStatus();
 }
 
 void SpecialInput(int key, int x, int y)
@@ -169,7 +178,7 @@ void SpecialInput(int key, int x, int y)
 	if (key == GLUT_KEY_DOWN)      mesh.Translate(0, 40, 0);
 	if (key == GLUT_KEY_PAGE_UP)   mesh.Scale(0.1);
 	if (key == GLUT_KEY_PAGE_DOWN) mesh.Scale(-0.1);
-//	std::cout << "Roation: x: " << mesh.rotationX << " y:" << mesh.rotationY << " z:" << mesh.rotationZ << std::endl;
+	mesh.PrintStatus();
 }
 
 //
@@ -231,20 +240,20 @@ void BuildFrame(BYTE *pFrame, int view)
 //		Point(400, 400),
 //		Point(0, 400, blue)
 //	};
-
+//
 //	auto points = std::vector<Point>();
 //
-//	const auto pointCount = 9;
-//	double a = 0, x = 0, y = 0;
-//	const auto angle = (360.0 / pointCount);
+//	const auto pointCount = 100;
+//	float a = 0, x = 0, y = 0;
+//	const auto angle = (360.0f / pointCount);
 //
 //	for (auto i = 0; i < pointCount; i++) {
 //		const auto r = rand() % 250;
 //
 //		a -= angle * (3.14159262 / 180);
 //
-//		x = r * cos(a) + static_cast<double>(frame_wide) / 2;
-//		y = r * sin(a) + static_cast<double>(frame_high) / 2;
+//		x = r * cos(a) + static_cast<float>(frame_wide) / 2;
+//		y = r * sin(a) + static_cast<float>(frame_high) / 2;
 //
 //		points.emplace_back(x, y, 100, Colour(rand() % 255, rand() % 255, rand() % 255));
 //	}
@@ -253,6 +262,7 @@ void BuildFrame(BYTE *pFrame, int view)
 
 	_render.DrawMesh(mesh);
 
+//	std::cout << "Frame: " << frameCount++ << "\n";
 //	_render.ClearZBuffer();
 }
 

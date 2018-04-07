@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include "GraphicsMath.h"
 #include <tuple>
+#include <iostream>
+#include <string>
 
 
 Mesh::Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons) :
@@ -30,7 +32,7 @@ void Mesh::Translate(const int xAmount, const int yAmount, const int zAmount)
 	z += zAmount;
 }
 
-auto Mesh::Rotate(const int xAmount, const int yAmount, const int zAmount) -> void
+auto Mesh::Rotate(const float xAmount, const float yAmount, const float zAmount) -> void
 {
 	rotationX += xAmount;
 	rotationY += yAmount;
@@ -40,6 +42,13 @@ auto Mesh::Rotate(const int xAmount, const int yAmount, const int zAmount) -> vo
 auto Mesh::Scale(const double scaleFactor) -> void
 {
 	Mesh::scaleFactor += scaleFactor;
+}
+
+auto Mesh::PrintStatus() const -> void
+{
+	std::cout << "Position:" << " x: " << x << " y: " << y << " z: " << z << std::endl;
+//	std::cout << "Scale: " << scaleFactor << std::endl;
+	std::cout << "Position:" << " Rotation:" << " x: " << rotationX << " y: " << rotationY << " z: " << rotationZ << std::endl;
 }
 
 auto Mesh::TransformVertices() const -> std::vector<Point>

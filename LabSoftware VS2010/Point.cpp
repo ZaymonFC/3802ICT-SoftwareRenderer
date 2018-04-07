@@ -8,22 +8,22 @@ Point::Point()
 	colour = Colour(255, 255, 255);
 }
 
-Point::Point(const double x, const double y) : x{x}, y{y}
+Point::Point(const float x, const float y) : x{x}, y{y}
 {
 	z = 0;
 	colour = Colour(255, 255, 255);
 }
 
-Point::Point(const double x, const double y, const double z) : x {x}, y{y}, z{z}
+Point::Point(const float x, const float y, const float z) : x {x}, y{y}, z{z}
 {
 }
 
-Point::Point(const double x, const double y, const Colour colour) : x{x}, y{y}, colour{colour}
+Point::Point(const float x, const float y, const Colour colour) : x{x}, y{y}, colour{colour}
 {
 	z = 0;
 }
 
-Point::Point(const double x, const double y, const double z, const Colour colour) : x{x}, y{y}, z{z}, colour{colour}
+Point::Point(const float x, const float y, const float z, const Colour colour) : x{x}, y{y}, z{z}, colour{colour}
 {
 }
 

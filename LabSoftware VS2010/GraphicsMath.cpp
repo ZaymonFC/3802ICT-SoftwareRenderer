@@ -1,59 +1,51 @@
 #include "GraphicsMath.h"
 #include "Point.h"
+#include <iostream>
 
-Point GraphicsMath::RotatePoint(const Point& point, const int rotationX, const int rotationY, const int rotationZ)
+/**
+ * \param point Point to rotate
+ * \param a Rotation around the x Axis
+ * \param b Rotation around the y Axis
+ * \param c Rotation around the z Axis
+ * \return 
+ */
+Point GraphicsMath::RotatePoint(const Point& point, const float a, const float b, const float c)
 {
-	// Degress to rad conversions
-	const auto a = rotationX * 0.0174533;
-	const auto b = rotationY * 0.0174533;
-	const auto c = rotationZ * 0.0174533;
+	const float x3 = point.x * (cos(b) * cos(c)) + point.z * sin(b) - point.y * (cos(b) * sin(c));
+	const float y3 = -point.z * (cos(b) * sin(a)) + point.x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + point.y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
+	const float z3 = point.z * (cos(a) * cos(b)) + point.x * (sin(a) * sin(c) - cos(a) * cos(c) * sin(b)) + point.y * (cos(c) * sin(a) + cos(a) * sin(b) * sin(c));
 
-//	const auto x3 = point.x * (cos(b) * cos(c)) +
-//		point.y * (sin(a)* sin(b)* cos(c) - cos(a) * sin(c)) +
-//		point.z * (cos(a) * sin(b) * cos(c) + sin(a) * sin(c));
-//	
-//	const auto y3 = point.x * (cos(b) * sin(c)) +
-//		point.y * (sin(a) * sin(b) * sin(c) + cos(a) * cos(c)) +
-//		point.z * (cos(a) * sin(b) * sin(c) - sin(a) * cos(c));
-//
-//	const auto z3 = point.x * sin(b) + point.y * sin(a) * cos(b) + point.z * cos(a) * cos(b);
-
-	
-	const auto x3 = point.x * (cos(b) * cos(c)) + point.z * sin(b) - point.y * (cos(b) * sin(c));
-	const auto y3 = -point.z * (cos(b) * sin(a)) + point.x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + point.y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
-	const auto z3 = point.z * (cos(a) * cos(b)) + point.x * (sin(a) * sin(c) - cos(a) * cos(c) * sin(b)) + point.y * (cos(c) * sin(a) + cos(a) * sin(b) * sin(c));
-
-
+//	std::cout << a << b << c;
 	return {x3, y3, z3, point.colour};
 }
 
-double GraphicsMath::Clamp(const double value, const double minimum = 0, const double maximum = 1)
+float GraphicsMath::Clamp(const float value, const float minimum = 0, const float maximum = 1)
 {
 	return value > maximum ? 1 :
 		value < minimum ? 0 : value;
 }
 
-double GraphicsMath::LinearLerp(const double start, const double end, const double gradient)
+float GraphicsMath::LinearLerp(const float start, const float end, float gradient)
 {
 	return start + (end - start) * Clamp(gradient);
 }
 
-double GraphicsMath::CrossProduct(const double x1, const double y1, const double x2, const double y2)
+float GraphicsMath::CrossProduct(const float x1, const float y1, const float x2, const float y2)
 {
 	return x1 * y2 - x2 * y1;
 }
 
-double GraphicsMath::CrossProduct(const Point v1, const Point v2)
+float GraphicsMath::CrossProduct(const Point v1, const Point v2)
 {
 	return (v1.x * v2.y) - (v1.y * v2.x);
 }
 
-double GraphicsMath::LineSide2D(const Point p, const Point lineFrom, const Point lineTo)
+float GraphicsMath::LineSide2D(const Point p, const Point lineFrom, const Point lineTo)
 {
 	return CrossProduct(p.x - lineFrom.x, p.y - lineFrom.y, lineTo.x - lineFrom.x, lineTo.y - lineFrom.y);
 }
 
-double GraphicsMath::Convex2D(const Point origin, const Point pNext, const Point pPrev)
+float GraphicsMath::Convex2D(const Point origin, const Point pNext, const Point pPrev)
 {
 	const auto vectorA = Point(pNext.x - origin.x, pNext.y - origin.y);
 	const auto vectorB = Point(pPrev.x - origin.x, pPrev.y - origin.y);
@@ -61,7 +53,7 @@ double GraphicsMath::Convex2D(const Point origin, const Point pNext, const Point
 	return CrossProduct(vectorA, vectorB);
 }
 
-int GraphicsMath::ClipTest(double p, double q, double * u1, double * u2)
+int GraphicsMath::ClipTest(float p, float q, float * u1, float * u2)
 {
 	const auto r = q / p;
 

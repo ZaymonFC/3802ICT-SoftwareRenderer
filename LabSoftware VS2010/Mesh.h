@@ -10,12 +10,11 @@ class Mesh
 	int x;
 	int y;
 	int z;
-public:
-	int rotationX;
-	int rotationY;
-	int rotationZ;
+	float rotationX;
+	float rotationY;
+	float rotationZ;
 	double scaleFactor;
-
+public:
 	int vertexCount;
 	int polygonCount;
 	std::vector<Point> vertices;
@@ -24,10 +23,10 @@ public:
 	Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons);
 
 	void Translate(int xAmount, int yAmount, int zAmount);
-	auto TransformVertices() const -> std::vector<Point>;
-
-	auto Rotate(int xAmount, int yAmount, int zAmount) -> void;
+	auto Rotate(float xAmount, float yAmount, float zAmount) -> void;
 	auto Scale(double scaleFactor) -> void;
+	auto TransformVertices() const -> std::vector<Point>;
+	auto PrintStatus() const -> void;
 
 };
 

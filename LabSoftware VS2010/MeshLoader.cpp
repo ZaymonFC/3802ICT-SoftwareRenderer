@@ -25,7 +25,7 @@ Mesh MeshLoader::LoadMesh(std::string fileName)
 
 	const auto vertexCount = jsonMesh["VertexCount"].get<int>();
 	const auto polygonCount = jsonMesh["PolygonCount"].get<int>();
-	auto vertexData = jsonMesh["Vertices"].get<std::vector<std::vector<int>>>();
+	auto vertexData = jsonMesh["Vertices"].get<std::vector<std::vector<float>>>();
 	auto polygonData = jsonMesh["Polygons"].get<std::vector<std::vector<int>>>();
 
 	auto vertices = std::vector<Point>();

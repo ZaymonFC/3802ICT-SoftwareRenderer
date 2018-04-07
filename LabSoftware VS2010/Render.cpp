@@ -78,18 +78,18 @@ void Render::DrawLine_Dda(const Point p0, const Point p1)
 
 void Render::DrawClipLine(Point p1, Point p2)
 {
-	auto u1 = 0.0;
-	auto u2 = 1.0;
-	const double dx = p2.x - p1.x;
+	auto u1 = 0.0f;
+	auto u2 = 1.0f;
+	const float dx = p2.x - p1.x;
 
 	if (GraphicsMath::ClipTest(-dx, p1.x - 0, &u1, &u2))
 	{
 		if (GraphicsMath::ClipTest(dx, static_cast<double>(frame_wide_ - p1.x), &u1, &u2))
 		{
-			const double dy = p2.y - p1.y;
+			const float dy = p2.y - p1.y;
 			if (GraphicsMath::ClipTest(-dy, p1.y - 0, &u1, &u2))
 			{
-				if (GraphicsMath::ClipTest(dy, static_cast<double>(frame_high_ - p1.y), &u1, &u2))
+				if (GraphicsMath::ClipTest(dy, static_cast<float>(frame_high_ - p1.y), &u1, &u2))
 				{
 					if (u2 < 1.0)
 					{
@@ -155,7 +155,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	// Draw Triangle - P2 on the right
 	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
 	{
-		for (auto y = static_cast<int>(p1.y); y <= p3.y; y++)
+		for (auto y = static_cast<int>(floor(p1.y)); y <= p3.y; y++)
 		{
 			// Calculate the colour on the left edge p1-p3 (Common to top and bottom)
 			const auto stepsP1P3 = abs(p1.y - p3.y);
@@ -184,7 +184,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	// Draw Triangle - P2 on the left
 	else
 	{
-		for (auto y = static_cast<int>(p1.y); y < p3.y; y++)
+		for (auto y = static_cast<int>(floor(p1.y)); y < p3.y; y++)
 		{
 			// Calculate the colour on the right edge p1-p3 (Common edge)
 			const auto stepsP1P3 = abs(p1.y - p3.y);
@@ -229,8 +229,8 @@ void Render::DrawTriangle(Face face)
 
 Point Render::ProjectionTransformPoint(std::vector<Point>::const_reference point, const int d) const
 {
-	const auto x = (((point.x - (frame_wide_ / 2.0)) * d) / (point.z + d)) + (frame_wide_ / 2.0);
-	const auto y = (((point.y - (frame_high_ / 2.0)) * d) / (point.z + d)) + (frame_high_ / 2.0);
+	const auto x = (((point.x - (frame_wide_ / 2.0f)) * d) / (point.z + d)) + (frame_wide_ / 2.0f);
+	const auto y = (((point.y - (frame_high_ / 2.0f)) * d) / (point.z + d)) + (frame_high_ / 2.0f);
 	return {x, y, point.z, point.colour};
 }
 
