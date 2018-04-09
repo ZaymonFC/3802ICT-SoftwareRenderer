@@ -19,7 +19,7 @@ Render::Render(const int width, const int height, const int vanishingPointOffset
 	}
 }
 
-void Render::SetPixel(Point point, Colour colour)
+void Render::SetPixel(const Point point, const Colour colour)
 {
 	// Calculate the position in the 1D Array
 	const auto position = (static_cast<int>(point.x) + static_cast<int>(point.y) * frame_wide_) * 3;
@@ -59,17 +59,17 @@ void Render::DrawLine_Dda(const Point p0, const Point p1)
 		steps = abs(dy);
 	}
 
-	const auto x_inc = dx / static_cast<double>(steps);
-	const auto y_inc = dy / static_cast<double>(steps);
+	const auto x_inc = dx / static_cast<float>(steps);
+	const auto y_inc = dy / static_cast<float>(steps);
 
-	double x = x0;
-	double y = y0;
+	auto x = x0;
+	auto y = y0;
 
-	SetPixel(Point(lround(x), lround(y)), p0.colour);
+	SetPixel(Point(x, y), p0.colour);
 
 	for (auto i = 0; i < steps; i++) {
 		const auto colourLerp = p0.colour.Interpolate(p1.colour, steps, i);
-		SetPixel(Point(lround(x), lround(y)), colourLerp);
+		SetPixel(Point(x, y), colourLerp);
 		x += x_inc;
 		y += y_inc;
 	}
@@ -80,7 +80,7 @@ void Render::DrawClipLine(Point p1, Point p2)
 {
 	auto u1 = 0.0f;
 	auto u2 = 1.0f;
-	const float dx = p2.x - p1.x;
+	const auto dx = p2.x - p1.x;
 
 	if (GraphicsMath::ClipTest(-dx, p1.x - 0, &u1, &u2))
 	{

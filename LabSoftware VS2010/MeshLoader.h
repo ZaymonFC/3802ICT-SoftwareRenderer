@@ -8,6 +8,6 @@ class MeshLoader
 public:
 	using json = nlohmann::json;
 
-	static Mesh LoadMesh(std::string fileName);
+	static auto LoadMesh(std::string fileName) -> Mesh;
 };
 

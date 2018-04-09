@@ -63,11 +63,16 @@ void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
 void SpecialInput(int key, int x, int y);
 
+//
+// -- FPS TIMING
+clock_t current_ticks, delta_ticks;
+clock_t fps = 0;
 
 //
 // ─── Meshes ───────────────────────────────────────────────────────
 //
-auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
+auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
+
 int frameCount = 0;
 
 //
@@ -99,7 +104,7 @@ int main(int argc, char** argv)
 	glutMouseFunc(OnMouse);
 	glutSpecialFunc(SpecialInput);
 
-	mesh.Translate(500, 500, 1000);
+	mesh.Translate(frame_wide/2, frame_high/2, 1000);
 
 
 	//
@@ -216,6 +221,9 @@ void DrawFrame()
 // ─── MAIN LOOP ───────────────────────────────────────────────────────────
 void BuildFrame(BYTE *pFrame, int view)
 {
+	// Log the start of the frame draw
+	current_ticks = clock();
+
 //	const auto colour_white = Colour(100, 255, 100);
 //	const auto colour_black = Colour(0, 0, 0);
 //
@@ -263,6 +271,14 @@ void BuildFrame(BYTE *pFrame, int view)
 
 //	std::cout << "Frame: " << frameCount++ << "\n";
 //	_render.ClearZBuffer();
+
+	// Log the end of the frame draw and calculate the FPS
+	delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
+	if (delta_ticks > 0)
+	{
+		fps = CLOCKS_PER_SEC / delta_ticks;
+	}
+	std::cout << "FPS: " << static_cast<int>(fps) << "\n";
 }
 
 
