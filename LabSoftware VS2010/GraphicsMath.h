@@ -14,6 +14,9 @@ public:
 	static float LinearLerp(float start, float end, float gradient);
 	static float Clamp(float value,  float minimum,  float maximum);
 
+	// Normaliztion
+	static auto Normalize(float value, float min, float max) -> float;
+
 	// Liang Barski Helpers
 	static int   ClipTest(float p, float q, float* u1, float* u2);
 

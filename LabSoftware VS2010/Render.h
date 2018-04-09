@@ -15,7 +15,7 @@ class Render
 	const int frame_high_;
 	const int vanishingPointOffset_;
 	BYTE * _screen;
-	std::vector<int> _zBuffer;
+	std::vector<float> _zBuffer;
 public:
 	Render(int width, int height, int vanishingPointOffset, BYTE * screen);
 
@@ -27,8 +27,7 @@ public:
 
 	void DrawClipLine(Point p1, Point p2);
 
-	void DrawScanLine(int y, Point pa, Point pb, Point pc, Point pd, const Colour& leftColour,
-	                  const Colour& rightColour);
+	void DrawScanLine(int y, Point pa, Point pb, Point pc, Point pd, const Colour& leftColour, const Colour& rightColour, float zLeft, float zRight);
 
 	void DrawTriangle(Point p1, Point p2, Point p3);
 
@@ -37,5 +36,7 @@ public:
 	void DrawTriangle(Face face);
 
 	void DrawMesh(Mesh mesh);
+
+//	void DrawText(int x, int y, const std::string& text);
 };
 

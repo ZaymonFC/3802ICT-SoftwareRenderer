@@ -62,6 +62,7 @@ void Reshape(int w, int h);
 void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
 void SpecialInput(int key, int x, int y);
+void DrawText(int x, int y, std::string& text);
 
 //
 // -- FPS TIMING
@@ -71,7 +72,13 @@ clock_t fps = 0;
 //
 // ─── Meshes ───────────────────────────────────────────────────────
 //
-auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
+//auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
+//auto mesh = MeshLoader::LoadMesh("Objects/polyhedron.json");
+auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
+
+
+// Global Strings
+std::string basic;
 
 int frameCount = 0;
 
@@ -104,7 +111,7 @@ int main(int argc, char** argv)
 	glutMouseFunc(OnMouse);
 	glutSpecialFunc(SpecialInput);
 
-	mesh.Translate(frame_wide/2, frame_high/2, 1000);
+	mesh.Translate(frame_wide/2, frame_high/2, 200);
 
 
 	//
@@ -130,6 +137,7 @@ void OnDisplay()
     glPixelZoom( 1, -1 );
     glRasterPos2i(0, frame_high-1);
     glDrawPixels(frame_wide, frame_high, GL_RGB,GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
+//	DrawText(100, 100, basic);
     glutSwapBuffers();
     glFlush();
 }
@@ -217,37 +225,25 @@ void DrawFrame()
 	}
 }
 
+void DrawText(const int x, const int y, const std::string& text)
+{
+	glRasterPos2i(x, y);
+	glColor3i(255, 255, 255);
+	for (auto character : text)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, character);
+	}
+}
+
+
 //
 // ─── MAIN LOOP ───────────────────────────────────────────────────────────
 void BuildFrame(BYTE *pFrame, int view)
 {
-	// Log the start of the frame draw
+	// TIMING --- Log the start of the frame draw
 	current_ticks = clock();
 
-//	const auto colour_white = Colour(100, 255, 100);
-//	const auto colour_black = Colour(0, 0, 0);
-//
-//	auto colour_new = Colour();
-
-//	const auto p1 = Point(300, 200, Colour(255, 0, 0));
-//	const auto p2 = Point(100, 400, Colour(0, 255, 0));
-//	const auto p3 = Point(500, 400, Colour(0, 0, 255));
-//	auto red = Colour(255, 0, 0);
-//	auto green = Colour(0, 255, 0);
-//	auto blue = Colour(0, 0, 255);
-
-//	const auto points = std::vector<Point>{ Point(0,0, red), Point(200, 0, blue), Point(200, 200), Point(0, 200, green) };
-//	const auto points = std::vector<Point>{
-//		Point(0, 0, red),
-//		Point(100, 0, green),
-//		Point(100, 100),
-//		Point(300, 100),
-//		Point(300, 0),
-//		Point(400, 0),
-//		Point(400, 400),
-//		Point(0, 400, blue)
-//	};
-//
+//    // Point generator for convex polygon creation
 //	auto points = std::vector<Point>();
 //
 //	const auto pointCount = 100;
@@ -264,21 +260,24 @@ void BuildFrame(BYTE *pFrame, int view)
 //
 //		points.emplace_back(x, y, 100, Colour(rand() % 255, rand() % 255, rand() % 255));
 //	}
-//
 //	_render.DrawPolygon(points);
 
 	_render.DrawMesh(mesh);
 
-//	std::cout << "Frame: " << frameCount++ << "\n";
-//	_render.ClearZBuffer();
+	_render.DrawTriangle(Point(1, 0, 0), Point(500, 500, 500), Point(1, 500, 0));
 
-	// Log the end of the frame draw and calculate the FPS
+	_render.ClearZBuffer();
+
+	// TIMING -- Log the end of the frame draw and calculate the FPS
 	delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
 	if (delta_ticks > 0)
 	{
 		fps = CLOCKS_PER_SEC / delta_ticks;
 	}
-	std::cout << "FPS: " << static_cast<int>(fps) << "\n";
+	auto ss = std::ostringstream();
+	ss << "FPS: " << static_cast<int>(fps);
+
+	basic = ss.str();
 }
 
 

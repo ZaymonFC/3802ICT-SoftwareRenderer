@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include "libs/glut.h"
 
 Render::Render(const int width, const int height, const int vanishingPointOffset, BYTE * screen) :
 	frame_wide_{ width },
@@ -13,31 +14,44 @@ Render::Render(const int width, const int height, const int vanishingPointOffset
 	vanishingPointOffset_(vanishingPointOffset),
 	_screen { screen }
 {
-	for (auto i = 0; i < width * height; i++)
+	for (auto i = 0; i < frame_wide_ * frame_high_; i++)
 	{
-		_zBuffer.emplace_back(0);
+		_zBuffer.push_back(0.0f);
 	}
 }
 
 void Render::SetPixel(const Point point, const Colour colour)
 {
+	const auto x = static_cast<int>(point.x);
+	const auto y = static_cast<int>(point.y);
+
 	// Calculate the position in the 1D Array
-	const auto position = (static_cast<int>(point.x) + static_cast<int>(point.y) * frame_wide_) * 3;
-	const auto zPosition = (point.x + point.y * frame_wide_);
+	const auto position = (x + y * frame_wide_) * 3;
+	const auto zPosition = x + y * frame_wide_;
 	
-	// Query ZBuffer
-//	if (_zBuffer[zPosition] > point.z) return;
+//	// Query ZBuffer
+//	if (point.z > _zBuffer.at(zPosition)) return;
 
-	_screen[position] = colour.r;
-	_screen[position + 1] = colour.g;
-	_screen[position + 2] = colour.b;
+//	_zBuffer.at(zPosition) = point.z;
 
-//	_zBuffer[zPosition] = point.z;
+	// Set the screen position
+	
+//	_screen[position] = colour.r;
+//	_screen[position + 1] = colour.g;
+//	_screen[position + 2] = colour.b;
+
+	const auto zColour = GraphicsMath::Normalize(point.z, 0, 500);
+
+	const auto zColourConverted = 255 - (zColour >= 1.0 ? 255 : (zColour <= 0.0 ? 0 : static_cast<int>(floor(zColour * 256.0))));
+
+	_screen[position] = zColourConverted;
+	_screen[position + 1] = zColourConverted;
+	_screen[position + 2] = zColourConverted;
 }
 
 void Render::ClearZBuffer()
 {
-	std::fill(_zBuffer.begin(), _zBuffer.end(), 0);
+	std::fill(_zBuffer.begin(), _zBuffer.end(), 0.0f);
 }
 
 
@@ -108,9 +122,8 @@ void Render::DrawClipLine(Point p1, Point p2)
 	}
 }
 
-
-void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour&
-	leftColour, const Colour& rightColour)
+void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Point pc, const Point pd, const Colour& leftColour,
+	const Colour& rightColour, float zLeft, float zRight)
 {
 	// CLIP FOR Y
 	if (y < 0 || y > frame_high_ - 1) { return; }
@@ -124,14 +137,24 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 	// Calculate the right x
 	const auto ex = static_cast<int>(GraphicsMath::LinearLerp(pc.x, pd.x, gradCD));
 
+//	// Calculate the left z
+//	auto zLeft = (sx - pa.x) / (pb.x - pa.x) * (pb.z - pa.z) + pa.z;
+//
+//	// Calculate the right z
+//	const auto zRight = (ex - pc.x) / (pd.x - pc.x) * (pd.z - pc.z) + pc.z;
+
 	const auto xWidth = ex - sx;
+
+	const auto zIncrement = (zRight - zLeft) / xWidth;
+
 	for (auto x = sx; x <= ex; x++)
 	{
 		// CLIP FOR X
 		if (x < 0) { continue; }
 		if (x > frame_wide_ - 1) { return; }
 
-		SetPixel(Point(x, y), leftColour.Interpolate(rightColour, xWidth, x - sx));
+		SetPixel(Point(x, y, zLeft), leftColour.Interpolate(rightColour, xWidth, x - sx));
+		zLeft += zIncrement;
 	}
 }
 
@@ -152,32 +175,43 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 		std::swap(p1, p2);
 	}
 
+	const auto stepsP1P3 = abs(p1.y - p3.y);
+	const auto stepsP1P2 = abs(p1.y - p2.y);
+	const auto stepsP2P3 = abs(p2.y - p3.y);
+
+	const auto zIncrementP1P3 = abs(p1.z - p3.z) / stepsP1P3;
+	const auto zIncrementP1P2 = abs(p1.z - p2.z) / stepsP1P2;
+	const auto zIncrementP2P3 = abs(p2.z - p3.z) / stepsP2P3;
+
 	// Draw Triangle - P2 on the right
 	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
 	{
 		for (auto y = static_cast<int>(floor(p1.y)); y <= p3.y; y++)
 		{
-			// Calculate the colour on the left edge p1-p3 (Common to top and bottom)
-			const auto stepsP1P3 = abs(p1.y - p3.y);
 			const auto leftColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
+			const auto currentStepLeft = stepsP1P3 - abs(p3.y - y);
+			const auto zLeft = p1.z + zIncrementP1P3 * currentStepLeft;
 
 			// Draw the top half
 			if (y < p2.y)
 			{
-				// Calculate the colour on the right edge p1-p2
-				const auto stepsP1P2 = abs(p1.y - p2.y);
 				const auto rightColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
-				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour);
+				const auto currentStepRight = stepsP1P2 - abs(p2.y - y);
+
+				const auto zRight = p1.z + zIncrementP1P2 * currentStepRight;
+
+				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour, zLeft, zRight);
 			}
 			// Draw the bottom half
 			else
 			{
-				// Calculate the colour on the right edge p2-p3
-				const auto stepsP2P3 = abs(p2.y - p3.y);
+				const auto currentStepRight = stepsP2P3 - abs(p3.y - y);
+				const auto zRight = p2.z + zIncrementP2P3 * currentStepRight;
+
 				const auto rightColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
-				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour);
+				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour, zLeft, zRight);
 			}
 		}
 	}
@@ -186,26 +220,29 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	{
 		for (auto y = static_cast<int>(floor(p1.y)); y < p3.y; y++)
 		{
-			// Calculate the colour on the right edge p1-p3 (Common edge)
-			const auto stepsP1P3 = abs(p1.y - p3.y);
 			const auto rightColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
+
+			const auto currentStepRight = stepsP1P3 - abs(p3.y - 1);
+			const auto zRight = p1.z + zIncrementP1P3 * currentStepRight;
 
 			// Draw the top half
 			if (y < p2.y)
 			{
-				// Calculate the colour on the left edge p1-p2
-				const auto stepsP1P2 = abs(p1.y - p2.y);
+				const auto currentStepLeft = stepsP1P2 - abs(p2.y - y);
+				const auto zLeft = p1.z + zIncrementP1P2 * currentStepLeft;
+
 				const auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
-				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour);
+				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour, zLeft, zRight);
 			}
 			else
 			{
-				// Calculate the colour on the left edge p1-p3
-				const auto stepsP2P3 = abs(p2.y - p3.y);
+				const auto currentStepLeft = stepsP2P3 - abs(p3.y - y);
+				const auto zLeft = p2.z + zIncrementP2P3 * currentStepLeft;
+
 				const auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
-				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour);
+				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour, zLeft, zRight);
 			}
 		}
 	}

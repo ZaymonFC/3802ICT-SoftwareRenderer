@@ -2,7 +2,7 @@
 #include "Colour.h"
 
 /**
- * Container class for 2-3D Point information with an associated colour
+ * Container class for 2D/3D Point information with an associated colour
  */
 class Point
 {

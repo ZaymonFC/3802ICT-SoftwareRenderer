@@ -33,6 +33,11 @@ float GraphicsMath::Clamp(const float value, const float minimum = 0, const floa
 		value < minimum ? 0 : value;
 }
 
+auto GraphicsMath::Normalize(float value, float min, float max) -> float
+{
+	return (value - min) / (max - min);
+}
+
 float GraphicsMath::LinearLerp(const float start, const float end, float gradient)
 {
 	return start + (end - start) * Clamp(gradient);

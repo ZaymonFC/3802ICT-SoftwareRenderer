@@ -28,9 +28,9 @@ def add_vertex(coordinates):
         point.append(float(coordinate))
     
     # Add the colours
-    point.append(rand.randint(100, 255))
     point.append(0)
-    point.append(rand.randint(0, 100))
+    point.append(rand.randint(100, 200))
+    point.append(rand.randint(100, 255))
 
     vertices.append(point)
     
@@ -56,7 +56,7 @@ colour = [250, 0, 0]
 
 file_data = []
 
-file_name = 'alfa147'
+file_name = 'compass'
 
 with open(f'{file_name}.obj') as fp:
     file_data = fp.read().splitlines()
@@ -66,7 +66,7 @@ for line in file_data:
     if line_values[0] == 'v':
         add_vertex(line_values[1:])
     elif line_values[0] == 'f':
-        add_face(line_values[1:-1])
+        add_face(line_values[1:])
 
 json_string = json.dumps(get_data_dictionary(vertices, faces), indent=2)
 
