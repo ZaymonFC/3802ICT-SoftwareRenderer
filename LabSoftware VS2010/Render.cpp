@@ -30,28 +30,28 @@ void Render::SetPixel(const Point point, const Colour colour)
 	const auto zPosition = x + y * frame_wide_;
 	
 //	// Query ZBuffer
-//	if (point.z > _zBuffer.at(zPosition)) return;
+	if (point.z > _zBuffer.at(zPosition)) return;
 
-//	_zBuffer.at(zPosition) = point.z;
+	_zBuffer.at(zPosition) = point.z;
 
 	// Set the screen position
 	
-//	_screen[position] = colour.r;
-//	_screen[position + 1] = colour.g;
-//	_screen[position + 2] = colour.b;
+	_screen[position] = colour.r;
+	_screen[position + 1] = colour.g;
+	_screen[position + 2] = colour.b;
 
-	const auto zColour = GraphicsMath::Normalize(point.z, 0, 500);
-
-	const auto zColourConverted = 255 - (zColour >= 1.0 ? 255 : (zColour <= 0.0 ? 0 : static_cast<int>(floor(zColour * 256.0))));
-
-	_screen[position] = zColourConverted;
-	_screen[position + 1] = zColourConverted;
-	_screen[position + 2] = zColourConverted;
+//	const auto zColour = GraphicsMath::Normalize(point.z, 0, 500);
+//
+//	const auto zColourConverted = 255 - (zColour >= 1.0 ? 255 : (zColour <= 0.0 ? 0 : static_cast<int>(floor(zColour * 256.0))));
+//
+//	_screen[position] = zColourConverted;
+//	_screen[position + 1] = zColourConverted;
+//	_screen[position + 2] = zColourConverted;
 }
 
 void Render::ClearZBuffer()
 {
-	std::fill(_zBuffer.begin(), _zBuffer.end(), 0.0f);
+	std::fill(_zBuffer.begin(), _zBuffer.end(), 100000);
 }
 
 
@@ -158,6 +158,11 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 	}
 }
 
+float InterpolateZValue(float initalValue, float increment, float index)
+{
+	return initalValue + (increment * index);
+}
+
 
 void Render::DrawTriangle(Point p1, Point p2, Point p3)
 {
@@ -179,9 +184,9 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	const auto stepsP1P2 = abs(p1.y - p2.y);
 	const auto stepsP2P3 = abs(p2.y - p3.y);
 
-	const auto zIncrementP1P3 = abs(p1.z - p3.z) / stepsP1P3;
-	const auto zIncrementP1P2 = abs(p1.z - p2.z) / stepsP1P2;
-	const auto zIncrementP2P3 = abs(p2.z - p3.z) / stepsP2P3;
+	const auto zIncrementP1P3 = (p3.z - p1.z) / stepsP1P3;
+	const auto zIncrementP1P2 = (p2.z - p1.z) / stepsP1P2;
+	const auto zIncrementP2P3 = (p3.z - p2.z) / stepsP2P3;
 
 	// Draw Triangle - P2 on the right
 	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
@@ -190,7 +195,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 		{
 			const auto leftColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
 			const auto currentStepLeft = stepsP1P3 - abs(p3.y - y);
-			const auto zLeft = p1.z + zIncrementP1P3 * currentStepLeft;
+			const auto zLeft = InterpolateZValue(p1.z, zIncrementP1P3, currentStepLeft);
 
 			// Draw the top half
 			if (y < p2.y)
@@ -198,8 +203,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 				const auto rightColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
 				const auto currentStepRight = stepsP1P2 - abs(p2.y - y);
-
-				const auto zRight = p1.z + zIncrementP1P2 * currentStepRight;
+				const auto zRight = InterpolateZValue(p1.z, zIncrementP1P2, currentStepRight);
 
 				DrawScanLine(y, p1, p3, p1, p2, leftColour, rightColour, zLeft, zRight);
 			}
@@ -207,7 +211,8 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			else
 			{
 				const auto currentStepRight = stepsP2P3 - abs(p3.y - y);
-				const auto zRight = p2.z + zIncrementP2P3 * currentStepRight;
+
+				const auto zRight = InterpolateZValue(p2.z, zIncrementP2P3, currentStepRight);
 
 				const auto rightColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
@@ -222,14 +227,14 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 		{
 			const auto rightColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
 
-			const auto currentStepRight = stepsP1P3 - abs(p3.y - 1);
-			const auto zRight = p1.z + zIncrementP1P3 * currentStepRight;
+			const auto currentStepRight = stepsP1P3 - abs(p3.y - y);
+			const auto zRight = InterpolateZValue(p1.z, zIncrementP1P3, currentStepRight);
 
 			// Draw the top half
 			if (y < p2.y)
 			{
 				const auto currentStepLeft = stepsP1P2 - abs(p2.y - y);
-				const auto zLeft = p1.z + zIncrementP1P2 * currentStepLeft;
+				const auto zLeft = InterpolateZValue(p1.z, zIncrementP1P2, currentStepLeft);
 
 				const auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
@@ -238,7 +243,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			else
 			{
 				const auto currentStepLeft = stepsP2P3 - abs(p3.y - y);
-				const auto zLeft = p2.z + zIncrementP2P3 * currentStepLeft;
+				const auto zLeft = InterpolateZValue(p2.z, zIncrementP2P3, currentStepLeft);
 
 				const auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 

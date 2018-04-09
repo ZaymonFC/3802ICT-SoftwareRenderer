@@ -72,9 +72,9 @@ clock_t fps = 0;
 //
 // ─── Meshes ───────────────────────────────────────────────────────
 //
-//auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
+auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
 //auto mesh = MeshLoader::LoadMesh("Objects/polyhedron.json");
-auto mesh = MeshLoader::LoadMesh("Objects/cube.json");
+//auto mesh = MeshLoader::LoadMesh("Objects/compass.json");
 
 
 // Global Strings
@@ -264,7 +264,7 @@ void BuildFrame(BYTE *pFrame, int view)
 
 	_render.DrawMesh(mesh);
 
-	_render.DrawTriangle(Point(1, 0, 0), Point(500, 500, 500), Point(1, 500, 0));
+//	_render.DrawTriangle(Point(1, 0, 0), Point(500, 500, 500), Point(1, 500, 0));
 
 	_render.ClearZBuffer();
 
