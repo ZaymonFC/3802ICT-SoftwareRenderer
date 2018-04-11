@@ -12,7 +12,7 @@ def get_data_dictionary(vertices, faces):
         'PolygonCount': len(faces),
         'Polygons': faces
     }
-    
+
 
 #
 # ─── CREATION FUNCTIONS ─────────────────────────────────────────────────────────
@@ -28,9 +28,15 @@ def add_vertex(coordinates):
         point.append(float(coordinate))
     
     # Add the colours
-    point.append(0)
-    point.append(rand.randint(100, 200))
-    point.append(rand.randint(100, 255))
+    if not greyscale:
+        point.append(rand.randint(redMin, redMax))
+        point.append(rand.randint(greenMin, greenMax))
+        point.append(rand.randint(blueMin, blueMax))
+    else:
+        colour = rand.randint(greyscaleMin, greyscaleMax)
+        point.append(colour)
+        point.append(colour)
+        point.append(colour)
 
     vertices.append(point)
     
@@ -52,11 +58,22 @@ def add_face(indexes):
 #
 faces = []
 vertices = []
-colour = [250, 0, 0]
+
+# Colours
+redMin   =  100
+redMax   =  255
+greenMin =  0
+greenMax =  0
+blueMin  =  50
+blueMax  =  150
+
+greyscale = False
+greyscaleMin = 150
+greyscaleMax = 230
 
 file_data = []
 
-file_name = 'compass'
+file_name = 'Magnolia'
 
 with open(f'{file_name}.obj') as fp:
     file_data = fp.read().splitlines()
