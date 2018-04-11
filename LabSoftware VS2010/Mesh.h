@@ -7,9 +7,9 @@
 */
 class Mesh
 {
-	int x_;
-	int y_;
-	int z_;
+	float x_;
+	float y_;
+	float z_;
 	float rotationX_;
 	float rotationY_;
 	float rotationZ_;
@@ -24,7 +24,7 @@ public:
 	Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons);
 	
 	// Modifiers
-	void Translate(int xAmount, int yAmount, int zAmount);
+	void Translate(float xAmount, float yAmount, float zAmount);
 	auto Rotate(float xAmount, float yAmount, float zAmount) -> void;
 	auto Scale(double scaleFactor) -> void;
 	auto ResetRotation() -> void;

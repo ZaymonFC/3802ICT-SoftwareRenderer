@@ -45,7 +45,7 @@ Mesh::Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::ve
 	rotationZ_ = 0;
 }
 
-void Mesh::Translate(const int xAmount, const int yAmount, const int zAmount)
+void Mesh::Translate(const float xAmount, const float yAmount, const float zAmount)
 {
 	x_ += xAmount;
 	y_ += yAmount;

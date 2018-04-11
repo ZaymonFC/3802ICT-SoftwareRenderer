@@ -5,11 +5,10 @@
 MeshManager::MeshManager(const int frame_wide, const int frame_high) : frame_wide_{ frame_wide }, frame_high_{ frame_high }
 {
 	compass_ = MeshLoader::LoadMesh("Objects/compass.json");
-	compass_.Translate(frame_wide_ - 100, frame_high_ - 100, 500);
+	compass_.Translate(frame_wide_ - 100.0f, frame_high_ - 100.0f, 500.0f);
 	compass_.MutableRotate(GraphicsMath::Degrees(90), 0, GraphicsMath::Degrees(90));
 
 	compass_.Scale(3);
-
 
 	meshMap_ = {
 		{'1', "Objects/polyhedron.json"},
@@ -38,7 +37,7 @@ auto MeshManager::CorrectMeshState(const char key) -> void
 {
 	compass_.ResetRotation();
 
-	mesh_.Translate(frame_wide_ / 2, frame_high_ / 2, 500);
+	mesh_.Translate(frame_wide_ / 2.0f, frame_high_ / 2.0f, 500);
 
 	// Normalization for size and rotation between models
 	switch (key)

@@ -61,11 +61,11 @@ vertices = []
 
 # Colours
 redMin   =  100
-redMax   =  255
-greenMin =  0
-greenMax =  0
+redMax   =  200
+greenMin =  100
+greenMax =  200
 blueMin  =  50
-blueMax  =  150
+blueMax  =  255
 
 greyscale = False
 greyscaleMin = 150
@@ -73,7 +73,7 @@ greyscaleMax = 230
 
 file_data = []
 
-file_name = 'Magnolia'
+file_name = 'Star'
 
 with open(f'{file_name}.obj') as fp:
     file_data = fp.read().splitlines()

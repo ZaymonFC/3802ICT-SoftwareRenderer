@@ -7,6 +7,7 @@
 #include "Point.h"
 
 
+
 Mesh MeshLoader::LoadMesh(std::string fileName)
 {
 	std::ifstream fileStream(fileName);
@@ -33,8 +34,15 @@ Mesh MeshLoader::LoadMesh(std::string fileName)
 
 	for (const auto& v : vertexData)
 	{
-		vertices.emplace_back(v[0], v[1], v[2], Colour(v[3], v[4], v[5]));
+		vertices.emplace_back(v[0], v[1], v[2], 
+			Colour(
+				static_cast<unsigned char>(v[3]),
+				static_cast<unsigned char>(v[4]),
+				static_cast<unsigned char>(v[5])
+			)
+		);
 	}
+
 	for (const auto& p : polygonData)
 	{
 		polygons.emplace_back(p);

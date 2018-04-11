@@ -17,9 +17,9 @@ Colour::Colour(const Colour& other) : r{other.r}, g{other.g}, b{other.b}
 
 Colour Colour::Interpolate(const Colour colour, const float steps, const float index) const
 {
-	const unsigned char newR = r + (static_cast<float>(colour.r - r) / steps) * index;
-	const unsigned char newG = g + (static_cast<float>(colour.g - g) / steps) * index;
-	const unsigned char newB = b + (static_cast<float>(colour.b - b) / steps) * index;
+	const unsigned char newR = r + static_cast<unsigned char>((static_cast<float>(colour.r - r) / steps) * index);
+	const unsigned char newG = g + static_cast<unsigned char>((static_cast<float>(colour.g - g) / steps) * index);
+	const unsigned char newB = b + static_cast<unsigned char>((static_cast<float>(colour.b - b) / steps) * index);
 
 	return {newR, newG, newB};
 }

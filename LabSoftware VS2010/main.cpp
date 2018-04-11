@@ -24,23 +24,27 @@
 
 //
 // ─── MACROS AND DEFINES ─────────────────────────────────────────────────────────
-//
 using BYTE = unsigned char;
 const auto frame_wide = 1280;
 const auto frame_high = 720;
 
 //
 // ─── GLOBAL VARIABLES ───────────────────────────────────────────────────────────
-//
 BYTE	pFrameL[frame_wide * frame_high * 3];
 BYTE	pFrameR[frame_wide * frame_high * 3];
 int		shade = 0;
 auto    xypos = Point(0, 0);
 int		stereo = 0;
 int		eyes = 10;
+bool _stereoDisplay = false;
+
+//
+// ─── FPS TIMING ─────────────────────────────────────────────────────────────────
+clock_t current_ticks, delta_ticks;
+clock_t fps = 0;
 
 /**
- * \brief Render instance for the graphics application 
+ * Render instance for the graphics application 
  */
 auto _render = Render(frame_wide, frame_high, 1200, pFrameR);
 auto _meshManager = MeshManager(frame_wide, frame_high);
@@ -55,32 +59,9 @@ void BuildFrame(BYTE *pFrame, int view);
 void OnIdle();
 void OnDisplay();
 void Reshape(int w, int h);
-void OnMouse(int button, int state, int x, int y);
 void OnKeypress(unsigned char key, int x, int y);
 void SpecialInput(int key, int x, int y);
 void DrawText(int x, int y, std::string& text);
-
-//
-// -- FPS TIMING
-clock_t current_ticks, delta_ticks;
-clock_t fps = 0;
-
-//
-// ─── Meshes ───────────────────────────────────────────────────────
-//
-//auto mesh = MeshLoader::LoadMesh("Objects/alfa147.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/shuttle.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/polyhedron.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/compass.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/cessna.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/ObjectText.json");
-//auto mesh = MeshLoader::LoadMesh("Objects/Magnolia.json");
-
-
-// Global Strings
-std::string basic;
-
-
 
 //
 // ───────────────────────────────────────────────────────────────────────────────────────────
@@ -89,8 +70,6 @@ std::string basic;
 //
 int main(int argc, char** argv)
 {
-//	auto game = new Game();
-
 	// ─── SETUP GLUT ─────────────────────────────────────────────────────────────────
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);	//GLUT_3_2_CORE_PROFILE |
@@ -108,11 +87,8 @@ int main(int argc, char** argv)
 	glutDisplayFunc(OnDisplay);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(OnKeypress);
-	glutMouseFunc(OnMouse);
+//	glutMouseFunc(OnMouse);
 	glutSpecialFunc(SpecialInput);
-
-
-
 
 	//
 	// ─── RUN THE PROGRAM ────────────────────────────────────────────────────────────
@@ -120,16 +96,11 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-
-//
-// ─── EVENT HANDERS ──────────────────────────────────────────────────────────────
-//  
 void OnIdle()
 {
 	DrawFrame();
 	glutPostRedisplay();
 }
-
 
 void OnDisplay()
 {
@@ -152,16 +123,6 @@ void Reshape(const int w, const int h)
 	glLoadIdentity();
 }
 
-
-void OnMouse(int button, int state, int x, int y)
-{
-	//	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-	//	{
-	//		PlaySoundEffect("Laser.wav"); 
-	//		if (++shade > 16) shade = 0;	
-	//	}
-}
-
 void OnKeypress(const unsigned char key, int x, int y)
 {
 	switch (key) 
@@ -172,18 +133,19 @@ void OnKeypress(const unsigned char key, int x, int y)
 		case '[': eyes--;	break;
 		case 'w': _meshManager.Rotate(GraphicsMath::Degrees(-10), GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0));   break;
 		case 's': _meshManager.Rotate(GraphicsMath::Degrees(10),  GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0));   break;
-		case 'a': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0),   GraphicsMath::Degrees(10));  break;
-		case 'd': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0),   GraphicsMath::Degrees(-10)); break;
-		case 'x': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(-10), GraphicsMath::Degrees(0));   break;
-		case 'z': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(10),  GraphicsMath::Degrees(0));   break;
-		case '1': _meshManager.SwitchMesh(key); break;
-		case '2': _meshManager.SwitchMesh(key); break;
-		case '3': _meshManager.SwitchMesh(key); break;
-		case '4': _meshManager.SwitchMesh(key); break;
-		case '5': _meshManager.SwitchMesh(key); break;
-		case '6': _meshManager.SwitchMesh(key); break;
+		case 'x': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0),   GraphicsMath::Degrees(10));  break;
+		case 'z': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0),   GraphicsMath::Degrees(-10)); break;
+		case 'd': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(-10), GraphicsMath::Degrees(0));   break;
+		case 'a': _meshManager.Rotate(GraphicsMath::Degrees(0),   GraphicsMath::Degrees(10),  GraphicsMath::Degrees(0));   break;
+		case '1': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
+		case '2': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
+		case '3': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
+		case '4': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
+		case '5': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
+		case '6': _meshManager.SwitchMesh(key); /* Play the action sound */ break;
 		case 'r': _render.SwitchRenderMode(); break;
 		case 'b': _render.ToggleZBuffer(); break;
+		case 'v': _stereoDisplay = !_stereoDisplay;
 		default: ;
 	}
 
@@ -225,8 +187,12 @@ void DrawFrame()
 {
 	ClearScreen();
 	
-	if (!stereo) BuildFrame(pFrameR, 0);
-	else {
+	if (!_stereoDisplay) 
+	{
+		BuildFrame(pFrameR, 0);
+	}
+	else 
+	{
 		BuildFrame(pFrameL, -eyes);
 		BuildFrame(pFrameR, +eyes);
 		Interlace(static_cast<BYTE *>(pFrameL), static_cast<BYTE *>(pFrameR));
@@ -251,6 +217,10 @@ void BuildFrame(BYTE *pFrame, int view)
 	// TIMING --- Log the start of the frame draw
 	current_ticks = clock();
 
+	// ─────────────────────────────────────────────────────────────────────
+	// START RENDER
+	// ─────────────────────────────────────────────────────────────────────
+
 //    // Point generator for convex polygon creation
 //	auto points = std::vector<Point>();
 //
@@ -270,21 +240,32 @@ void BuildFrame(BYTE *pFrame, int view)
 //	}
 //	_render.DrawPolygon(points);
 
+	if (stereo)
+	{
+		for (auto& mesh: _meshManager.GetMeshes())
+		{
+			mesh.Translate(view, 0, 0);
+		}
+	}
+
 	for (const auto& mesh: _meshManager.GetMeshes())
 	{
 		_render.DrawMesh(mesh);
 	}
 
-//	_render.DrawTriangle(Point(1, 0, 0), Point(500, 500, 500), Point(1, 500, 0));
-
 	_render.ClearZBuffer();
 
-	// TIMING -- Log the end of the frame draw and calculate the FPS
+	// ─────────────────────────────────────────────────────────────────────
+	// END RENDER
+	// ─────────────────────────────────────────────────────────────────────
+
+	// TIMING --- Log the end of the frame draw and calculate the FPS
 	delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
 	if (delta_ticks > 0)
 	{
 		fps = CLOCKS_PER_SEC / delta_ticks;
 	}
+
 //	auto ss = std::ostringstream();
 	std::cout << "FPS: " << static_cast<int>(fps) << "\n";
 

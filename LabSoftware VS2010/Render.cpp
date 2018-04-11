@@ -193,10 +193,18 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	const auto zIncrementP1P2 = (p2.z - p1.z) / stepsP1P2;
 	const auto zIncrementP2P3 = (p3.z - p2.z) / stepsP2P3;
 
+	auto initialY = static_cast<int>(p1.y);
+	
+	if (initialY == static_cast<int>(p2.y))
+	{
+		DrawScanLine(initialY, p1, p3, p1, p2, p1.colour, p2.colour, p1.z, p2.z);
+		initialY++;
+	}
+
 	// Draw Triangle - P2 on the right
 	if (GraphicsMath::LineSide2D(p2, p1, p3) > 0)
 	{
-		for (auto y = static_cast<int>(floor(p1.y)); y <= p3.y; y++)
+		for (auto y = initialY; y <= p3.y; y++)
 		{
 			const auto leftColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
 			const auto currentStepLeft = stepsP1P3 - abs(p3.y - y);
@@ -206,7 +214,6 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			if (y < p2.y)
 			{
 				const auto rightColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
-
 				const auto currentStepRight = stepsP1P2 - abs(p2.y - y);
 				const auto zRight = InterpolateZValue(p1.z, zIncrementP1P2, currentStepRight);
 
@@ -216,9 +223,7 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			else
 			{
 				const auto currentStepRight = stepsP2P3 - abs(p3.y - y);
-
 				const auto zRight = InterpolateZValue(p2.z, zIncrementP2P3, currentStepRight);
-
 				const auto rightColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
 				DrawScanLine(y, p1, p3, p2, p3, leftColour, rightColour, zLeft, zRight);
@@ -228,10 +233,9 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 	// Draw Triangle - P2 on the left
 	else
 	{
-		for (auto y = static_cast<int>(floor(p1.y)); y < p3.y; y++)
+		for (auto y = initialY; y < p3.y; y++)
 		{
 			const auto rightColour = p1.colour.Interpolate(p3.colour, stepsP1P3, y - p1.y);
-
 			const auto currentStepRight = stepsP1P3 - abs(p3.y - y);
 			const auto zRight = InterpolateZValue(p1.z, zIncrementP1P3, currentStepRight);
 
@@ -240,7 +244,6 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			{
 				const auto currentStepLeft = stepsP1P2 - abs(p2.y - y);
 				const auto zLeft = InterpolateZValue(p1.z, zIncrementP1P2, currentStepLeft);
-
 				const auto leftColour = p1.colour.Interpolate(p2.colour, stepsP1P2, y - p1.y);
 
 				DrawScanLine(y, p1, p2, p1, p3, leftColour, rightColour, zLeft, zRight);
@@ -249,7 +252,6 @@ void Render::DrawTriangle(Point p1, Point p2, Point p3)
 			{
 				const auto currentStepLeft = stepsP2P3 - abs(p3.y - y);
 				const auto zLeft = InterpolateZValue(p2.z, zIncrementP2P3, currentStepLeft);
-
 				const auto leftColour = p2.colour.Interpolate(p3.colour, stepsP2P3, y - p2.y);
 
 				DrawScanLine(y, p2, p3, p1, p3, leftColour, rightColour, zLeft, zRight);
@@ -283,6 +285,7 @@ void Render::DrawMesh(Mesh mesh)
 
 	auto translatedPoints = mesh.TransformVertices();
 	auto faces = std::vector<Face>();
+
 	for (const auto& polygon : mesh.polygons)
 	{
 		auto transformedPoints = std::vector<Point>();
@@ -312,6 +315,7 @@ auto Render::DrawWireFrame(const Mesh& mesh) -> void
 	for (const auto& polygon : mesh.polygons)
 	{
 		auto transformedPoints = std::vector<Point>();
+
 		for (auto index : polygon)
 		{
 			transformedPoints.push_back(GraphicsMath::ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_, frame_wide_, frame_high_));
