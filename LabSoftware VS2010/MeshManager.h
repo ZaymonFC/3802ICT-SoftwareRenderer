@@ -21,7 +21,8 @@ public:
 	auto Rotate(float xAmount, float yAmount, float zAmount) -> void;
 	auto Translate(float xAmount, float yAmount, float zAmount) -> void;
 
-	auto GetMeshes() const ->std::vector<Mesh>;
+	auto GetMeshes() const -> std::vector<Mesh>;
+
 	auto GetText()->std::string;
 	auto PrintStatus() const -> void;
 	auto Scale(float scaleFactor) -> void;

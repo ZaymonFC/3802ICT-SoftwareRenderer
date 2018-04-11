@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <vector>
 #include "libs/glut.h"
+#include "GraphicsMath.h"
 
 Render::Render(const int width, const int height, const int vanishingPointOffset, BYTE * screen) :
 	frame_wide_{ width },
@@ -283,6 +284,17 @@ void Render::DrawMesh(Mesh mesh)
 		return;
 	}
 
+	// No sense in wasting CPU
+	if (mesh.cached)
+	{
+		for (const auto& face : mesh.cachedFaces)
+		{
+			DrawTriangle(face);
+		}
+
+		return;
+	}
+
 	auto translatedPoints = mesh.TransformVertices();
 	auto faces = std::vector<Face>();
 
@@ -290,12 +302,25 @@ void Render::DrawMesh(Mesh mesh)
 	{
 		auto transformedPoints = std::vector<Point>();
 
-//		if (!GraphicsMath::BackFaceCull())
-
+		// Z Transform the points
 		for (auto index : polygon)
 		{
 			transformedPoints.push_back(GraphicsMath::ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_, frame_wide_, frame_high_));
 		}
+
+		// Don't attempt to decompose triangles
+		if (polygon.size() == 3)
+		{
+			// Backface cull
+			if (!GraphicsMath::Convex2D(transformedPoints[1], transformedPoints[0], transformedPoints[2]))
+			{
+				faces.emplace_back(translatedPoints[polygon[1]], translatedPoints[polygon[0]], translatedPoints[polygon[2]]);
+				continue;
+			}
+		}
+
+		// Backface cull polygon using Newells Method
+		if (!GraphicsMath::BackFaceCullPolygon(transformedPoints)) continue;
 
 		for (const auto& face : DecompositionService::DecomposePolygon(transformedPoints))
 		{
@@ -307,6 +332,10 @@ void Render::DrawMesh(Mesh mesh)
 	{
 		DrawTriangle(face);
 	}
+
+	// Cache the results of all the transformation and decompositions
+	mesh.cachedFaces = faces;
+	mesh.cached = true;
 }
 
 auto Render::DrawWireFrame(const Mesh& mesh) -> void

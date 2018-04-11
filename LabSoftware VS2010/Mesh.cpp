@@ -3,7 +3,7 @@
 #include <tuple>
 #include <iostream>
 #include <string>
-
+#include "MatrixMath.h"
 
 Mesh::Mesh()
 {
@@ -43,6 +43,9 @@ Mesh::Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::ve
 	rotationX_ = 0;
 	rotationY_ = 0; 
 	rotationZ_ = 0;
+
+	cached = false;
+	cachedFaces = std::vector<Face>();
 }
 
 void Mesh::Translate(const float xAmount, const float yAmount, const float zAmount)
@@ -50,6 +53,8 @@ void Mesh::Translate(const float xAmount, const float yAmount, const float zAmou
 	x_ += xAmount;
 	y_ += yAmount;
 	z_ += zAmount;
+
+	InvalidateCache();
 }
 
 auto Mesh::Rotate(const float xAmount, const float yAmount, const float zAmount) -> void
@@ -57,11 +62,15 @@ auto Mesh::Rotate(const float xAmount, const float yAmount, const float zAmount)
 	rotationX_ += xAmount;
 	rotationY_ += yAmount;
 	rotationZ_ += zAmount;
+
+	InvalidateCache();
 }
 
 auto Mesh::Scale(const double scaleFactor) -> void
 {
-	Mesh::scaleFactor_ += scaleFactor;
+	scaleFactor_ += scaleFactor;
+
+	InvalidateCache();
 }
 
 auto Mesh::PrintStatus() const -> void
@@ -76,6 +85,8 @@ auto Mesh::ResetRotation() -> void
 	rotationX_ = 0;
 	rotationY_ = 0;
 	rotationZ_ = 0;
+
+	InvalidateCache();
 }
 
 auto Mesh::MutableRotate(float xAmount, float yAmount, float zAmount) -> void
@@ -84,6 +95,8 @@ auto Mesh::MutableRotate(float xAmount, float yAmount, float zAmount) -> void
 	{
 		vertex = GraphicsMath::RotatePoint(vertex, xAmount, yAmount, zAmount);
 	}
+
+	InvalidateCache();
 }
 
 auto Mesh::MutableScale(const float scaleFactor) -> void
@@ -94,6 +107,8 @@ auto Mesh::MutableScale(const float scaleFactor) -> void
 		vertex.y *= scaleFactor;
 		vertex.z *= scaleFactor;
 	}
+
+	InvalidateCache();
 }
 
 auto Mesh::TransformVertices() const -> std::vector<Point>
@@ -127,3 +142,51 @@ auto Mesh::TransformVertices() const -> std::vector<Point>
 
 	return transformedVertices;
 }
+
+//auto Mesh::TransformVertices() const->std::vector<Point>
+//{
+//	auto transformedVertices = std::vector<Point>();
+//
+//	MatrixMath::Mat4 positionMatrix = {
+//		scaleFactor_, 0, 0, x_,
+//		0, scaleFactor_, 0, y_,
+//		0, 0, scaleFactor_, z_,
+//		0, 0, 0, 1
+//	};
+//
+//	MatrixMath::Mat4 rotationMatrixX = {
+//		1, 0, 0, 0,
+//		0, cos(rotationX_), -sin(rotationX_), 0,
+//		0, sin(rotationX_), cos(rotationX_), 0,
+//		0, 0, 0, 1
+//	};
+//	MatrixMath::Mat4 rotationMatrixY = {
+//		cos(rotationY_), 0, sin(rotationY_), 0,
+//		0, 1, 0, 0,
+//		-sin(rotationY_), 0, cos(rotationY_), 0,
+//		0, 0, 0, 1
+//	};
+//	MatrixMath::Mat4 rotationMatrixZ = {
+//		cos(rotationZ_), -sin(rotationZ_), 0, 0,
+//		sin(rotationZ_), cos(rotationZ_), 0, 0,
+//		0, 0, 1, 0,
+//		0, 0, 0, 1
+//	};
+//	const auto rotationMatrix = rotationMatrixX.Mat4Multiply(rotationMatrixY).Mat4Multiply(rotationMatrixZ);
+//
+//	for (auto vertex : vertices)
+//	{
+//		MatrixMath::TransformPoint(positionMatrix, vertex, 1);
+//		MatrixMath::TransformPoint(rotationMatrix, vertex, 0);
+//
+//		transformedVertices.push_back(vertex);
+//	}
+//
+//	return transformedVertices;
+//}
+
+auto Mesh::InvalidateCache() -> void
+{
+	cached = false;
+}
+

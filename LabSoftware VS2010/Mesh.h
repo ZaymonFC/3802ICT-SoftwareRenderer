@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Point.h"
+#include "Face.h"
 
 /**
 * Container class for mesh and mesh operations such as translation and rotation
@@ -20,6 +21,9 @@ public:
 	std::vector<Point> vertices;
 	std::vector<std::vector<int>> polygons;
 
+	bool cached = false;
+	std::vector<Face> cachedFaces;
+
 	Mesh();
 	Mesh(int vertexCount, int polygonCount, std::vector<Point> points, std::vector<std::vector<int>> polygons);
 	
@@ -31,6 +35,7 @@ public:
 
 	// Mutable Modifiers
 	auto MutableRotate(float xAmount, float yAmount, float zAmount) -> void;
+	auto InvalidateCache() -> void;
 	auto MutableScale(float scaleFactor) -> void;
 
 	// Getters

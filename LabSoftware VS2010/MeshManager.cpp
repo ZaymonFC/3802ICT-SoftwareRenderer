@@ -11,7 +11,7 @@ MeshManager::MeshManager(const int frame_wide, const int frame_high) : frame_wid
 	compass_.Scale(3);
 
 	meshMap_ = {
-		{'1', "Objects/polyhedron.json"},
+		{'1', "Objects/star.json"},
 		{'2', "Objects/magnolia.json"},
 		{'3', "Objects/cessna.json"},
 		{'4', "Objects/object_text.json"},

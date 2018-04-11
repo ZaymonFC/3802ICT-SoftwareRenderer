@@ -2,6 +2,7 @@
 #include "Point.h"
 #include <iostream>
 
+
 /**
  * \param point Point to rotate
  * \param a Rotation around the x Axis
@@ -98,6 +99,21 @@ int GraphicsMath::SameSide(const Point a, const Point b, const Point l1, const P
 	const auto bpt = (b.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (b.y - l1.y);
 
 	return abt * bpt > 0;
+}
+
+bool GraphicsMath::BackFaceCullPolygon(std::vector<Point>& points)
+{
+	auto vNormalZ = 0;
+	const auto vertextCount = points.size();
+	for (unsigned int i = 0; i < vertextCount; i++)
+	{
+		const auto point = points.at(i);
+		const auto pointNext = points.at((i + 1) % vertextCount);
+
+		vNormalZ += (point.x - pointNext.x) * (point.y + pointNext.y);
+	}
+
+	return vNormalZ < 0;
 }
 
 bool GraphicsMath::PointInTriangle(Point p, Point a, Point b, Point c)

@@ -18,7 +18,7 @@ Point::Point(const float x, const float y, const float z) : x {x}, y{y}, z{z}
 {
 }
 
-Point::Point(const float x, const float y, const Colour colour) : x{x}, y{y}, colour{colour}
+Point::Point(const float x, const float y, const Colour colour) : x{x}, y{ y }, colour{ colour }
 {
 	z = 0;
 }

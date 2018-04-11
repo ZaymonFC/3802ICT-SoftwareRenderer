@@ -32,10 +32,13 @@ public:
 	static float Convex2D( Point origin,  Point pNext,  Point pPrev);
 	static int   SameSide(Point a, Point b, Point l1, Point l2);
 
+	static bool BackFaceCullPolygon(std::vector<Point>& points);
+
 	// Conversions
 	static constexpr float Degrees(const float f)
 	{
 		return  f * (3.141592653589793238462643383279502884f / 180.0f);
 	}
+
 };
 

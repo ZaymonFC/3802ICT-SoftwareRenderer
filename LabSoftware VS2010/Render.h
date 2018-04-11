@@ -1,8 +1,6 @@
 #pragma once
-#include <bitset>
 #include "Colour.h"
 #include "Point.h"
-#include "GraphicsMath.h"
 #include <vector>
 
 class Mesh;
@@ -46,7 +44,5 @@ public:
 	auto SwitchRenderMode() -> void;
 
 	auto ToggleZBuffer() -> void;
-
-	//	void DrawText(int x, int y, const std::string& text);
 };
 

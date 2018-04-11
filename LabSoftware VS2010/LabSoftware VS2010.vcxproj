@@ -16,6 +16,7 @@
     <ClCompile Include="Face.cpp" />
     <ClCompile Include="GraphicsMath.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MatrixMath.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="MeshManager.cpp" />
@@ -28,6 +29,7 @@
     <ClInclude Include="Face.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsMath.h" />
+    <ClInclude Include="MatrixMath.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="MeshManager.h" />
