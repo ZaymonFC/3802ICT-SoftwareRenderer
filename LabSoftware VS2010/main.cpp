@@ -182,6 +182,8 @@ void OnKeypress(const unsigned char key, int x, int y)
 		case '4': _meshManager.SwitchMesh(key); break;
 		case '5': _meshManager.SwitchMesh(key); break;
 		case '6': _meshManager.SwitchMesh(key); break;
+		case 'r': _render.SwitchRenderMode(); break;
+		case 'b': _render.ToggleZBuffer(); break;
 		default: ;
 	}
 

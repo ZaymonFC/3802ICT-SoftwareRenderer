@@ -14,10 +14,15 @@ Render::Render(const int width, const int height, const int vanishingPointOffset
 	vanishingPointOffset_(vanishingPointOffset),
 	_screen { screen }
 {
+	// Initialise the Z-Buffer
 	for (auto i = 0; i < frame_wide_ * frame_high_; i++)
 	{
 		_zBuffer.push_back(0.0f);
 	}
+
+	renderZ_ = false;
+	renderWire_ = false;
+	renderZBuff_ = true;
 }
 
 void Render::SetPixel(const Point point, const Colour colour)
@@ -30,23 +35,29 @@ void Render::SetPixel(const Point point, const Colour colour)
 	const auto zPosition = x + y * frame_wide_;
 	
 //	// Query ZBuffer
-	if (point.z > _zBuffer.at(zPosition)) return;
+	if (renderZBuff_)
+	{
+		if (point.z > _zBuffer.at(zPosition)) return;
+	}
 
 	_zBuffer.at(zPosition) = point.z;
 
 	// Set the screen position
-	
-	_screen[position] = colour.r;
-	_screen[position + 1] = colour.g;
-	_screen[position + 2] = colour.b;
-
-//	const auto zColour = GraphicsMath::Normalize(point.z, 0, 500);
-//
-//	const auto zColourConverted = 255 - (zColour >= 1.0 ? 255 : (zColour <= 0.0 ? 0 : static_cast<int>(floor(zColour * 256.0))));
-//
-//	_screen[position] = zColourConverted;
-//	_screen[position + 1] = zColourConverted;
-//	_screen[position + 2] = zColourConverted;
+	if (!renderZ_)
+	{
+		_screen[position] = colour.r;
+		_screen[position + 1] = colour.g;
+		_screen[position + 2] = colour.b;
+	}
+	else
+	{
+		const auto zColour = GraphicsMath::Normalize(point.z, 0, 1200);
+		const auto zColourConverted = 255 - (zColour >= 1.0 ? 255 : (zColour <= 0.0 ? 0 : static_cast<int>(floor(zColour * 256.0))));
+		
+		_screen[position] = zColourConverted;
+		_screen[position + 1] = zColourConverted;
+		_screen[position + 2] = zColourConverted;
+	}
 }
 
 void Render::ClearZBuffer()
@@ -62,8 +73,8 @@ void Render::DrawLine_Dda(const Point p0, const Point p1)
 	const auto x1 = p1.x;
 	const auto y1 = p1.y;
 
-	const auto dx = abs(x1 - x0);
-	const auto dy = abs(y1 - y0);
+	const auto dx = x1 - x0;
+	const auto dy = y1 - y0;
 
 	int steps;
 	if (abs(dx) > abs(dy)) {
@@ -98,12 +109,12 @@ void Render::DrawClipLine(Point p1, Point p2)
 
 	if (GraphicsMath::ClipTest(-dx, p1.x - 0, &u1, &u2))
 	{
-		if (GraphicsMath::ClipTest(dx, static_cast<double>(frame_wide_ - p1.x), &u1, &u2))
+		if (GraphicsMath::ClipTest(dx, static_cast<double>(frame_wide_ - 1 - p1.x), &u1, &u2))
 		{
 			const float dy = p2.y - p1.y;
 			if (GraphicsMath::ClipTest(-dy, p1.y - 0, &u1, &u2))
 			{
-				if (GraphicsMath::ClipTest(dy, static_cast<float>(frame_high_ - p1.y), &u1, &u2))
+				if (GraphicsMath::ClipTest(dy, static_cast<float>(frame_high_ - 1 - p1.y), &u1, &u2))
 				{
 					if (u2 < 1.0)
 					{
@@ -136,12 +147,6 @@ void Render::DrawScanLine(const int y, const Point pa, const Point pb, const Poi
 	const auto sx = static_cast<int>(GraphicsMath::LinearLerp(pa.x, pb.x, gradAB));
 	// Calculate the right x
 	const auto ex = static_cast<int>(GraphicsMath::LinearLerp(pc.x, pd.x, gradCD));
-
-//	// Calculate the left z
-//	auto zLeft = (sx - pa.x) / (pb.x - pa.x) * (pb.z - pa.z) + pa.z;
-//
-//	// Calculate the right z
-//	const auto zRight = (ex - pc.x) / (pd.x - pc.x) * (pd.z - pc.z) + pc.z;
 
 	const auto xWidth = ex - sx;
 
@@ -270,12 +275,20 @@ void Render::DrawTriangle(Face face)
 
 void Render::DrawMesh(Mesh mesh)
 {
-	auto translatedPoints = mesh.TransformVertices();
+	if (renderWire_)
+	{
+		DrawWireFrame(mesh);
+		return;
+	}
 
+	auto translatedPoints = mesh.TransformVertices();
 	auto faces = std::vector<Face>();
 	for (const auto& polygon : mesh.polygons)
 	{
 		auto transformedPoints = std::vector<Point>();
+
+//		if (!GraphicsMath::BackFaceCull())
+
 		for (auto index : polygon)
 		{
 			transformedPoints.push_back(GraphicsMath::ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_, frame_wide_, frame_high_));
@@ -291,4 +304,44 @@ void Render::DrawMesh(Mesh mesh)
 	{
 		DrawTriangle(face);
 	}
+}
+
+auto Render::DrawWireFrame(const Mesh& mesh) -> void
+{
+	auto translatedPoints = mesh.TransformVertices();
+	for (const auto& polygon : mesh.polygons)
+	{
+		auto transformedPoints = std::vector<Point>();
+		for (auto index : polygon)
+		{
+			transformedPoints.push_back(GraphicsMath::ProjectionTransformPoint(translatedPoints[index], vanishingPointOffset_, frame_wide_, frame_high_));
+		}
+
+		for (unsigned int i = 0; i < transformedPoints.size() - 1; i++) {
+			DrawClipLine(transformedPoints[i], transformedPoints[i + 1]);
+		}
+	}
+}
+
+auto Render::SwitchRenderMode() -> void
+{
+	if (renderZ_)
+	{
+		renderZ_ = false;
+		renderWire_ = true;
+		return;
+	}
+	
+	if (renderWire_)
+	{
+		renderWire_ = false;
+		return;
+	}
+
+	renderZ_ = true;
+}
+
+auto Render::ToggleZBuffer() -> void
+{
+	renderZBuff_ = !renderZBuff_;
 }

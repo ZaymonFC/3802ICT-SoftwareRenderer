@@ -16,6 +16,10 @@ class Render
 	const int vanishingPointOffset_;
 	BYTE * _screen;
 	std::vector<float> _zBuffer;
+	
+	bool renderZ_;
+	bool renderWire_;
+	bool renderZBuff_;
 public:
 	Render(int width, int height, int vanishingPointOffset, BYTE * screen);
 
@@ -37,6 +41,12 @@ public:
 
 	void DrawMesh(Mesh mesh);
 
-//	void DrawText(int x, int y, const std::string& text);
+	auto DrawWireFrame(const Mesh& mesh)-> void;
+
+	auto SwitchRenderMode() -> void;
+
+	auto ToggleZBuffer() -> void;
+
+	//	void DrawText(int x, int y, const std::string& text);
 };
 
