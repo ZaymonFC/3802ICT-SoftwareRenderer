@@ -234,7 +234,7 @@ void BuildFrame(BYTE *pFrame, int view)
 //	}
 //	_render.DrawPolygon(points);
 
-	if (stereo)
+	if (_stereoDisplay)
 	{
 		for (auto& mesh: _meshManager.GetMeshes())
 		{
