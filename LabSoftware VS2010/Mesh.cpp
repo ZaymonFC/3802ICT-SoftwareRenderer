@@ -176,8 +176,8 @@ auto Mesh::TransformVertices() const -> std::vector<Point>
 //
 //	for (auto vertex : vertices)
 //	{
-//		MatrixMath::TransformPoint(positionMatrix, vertex, 1);
 //		MatrixMath::TransformPoint(rotationMatrix, vertex, 0);
+//		MatrixMath::TransformPoint(positionMatrix, vertex, 1);
 //
 //		transformedVertices.push_back(vertex);
 //	}

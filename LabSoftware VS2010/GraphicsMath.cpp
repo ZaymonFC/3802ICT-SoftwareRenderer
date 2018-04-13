@@ -101,6 +101,13 @@ int GraphicsMath::SameSide(const Point a, const Point b, const Point l1, const P
 	return abt * bpt > 0;
 }
 
+bool GraphicsMath::PointInTriangle(Point p, Point a, Point b, Point c)
+{
+	return SameSide(p, a, b, c) && 
+		   SameSide(p, b, a, c) && 
+		   SameSide(p, c, a, b);
+}
+
 bool GraphicsMath::BackFaceCullPolygon(std::vector<Point>& points)
 {
 	auto vNormalZ = 0;
@@ -114,12 +121,5 @@ bool GraphicsMath::BackFaceCullPolygon(std::vector<Point>& points)
 	}
 
 	return vNormalZ < 0;
-}
-
-bool GraphicsMath::PointInTriangle(Point p, Point a, Point b, Point c)
-{
-	return SameSide(p, a, b, c) && 
-		   SameSide(p, b, a, c) && 
-		   SameSide(p, c, a, b);
 }
 

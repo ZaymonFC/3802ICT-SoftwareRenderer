@@ -54,7 +54,7 @@ auto MeshManager::CorrectMeshState(const char key) -> void
 			mesh_.MutableRotate(GraphicsMath::Degrees(180), 0.0f, 0.0f);
 			break;
 		case '4': // ObjectText
-			mesh_.MutableScale(1.5);
+			mesh_.MutableScale(3.5);
 			mesh_.MutableRotate(GraphicsMath::Degrees(90), 0.0f, GraphicsMath::Degrees(-90));
 			break;
 		case '5': // Shuttle

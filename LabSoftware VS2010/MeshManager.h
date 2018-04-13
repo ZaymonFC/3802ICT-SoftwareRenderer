@@ -11,6 +11,7 @@ class MeshManager
 	int frame_wide_;
 	int frame_high_;
 
+
 public:
 	MeshManager(int frame_wide, int frame_high);
 

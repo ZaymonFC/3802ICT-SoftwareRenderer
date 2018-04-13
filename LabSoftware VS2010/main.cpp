@@ -62,7 +62,6 @@ void OnDisplay();
 void Reshape(int w, int h);
 void OnKeypress(unsigned char key, int x, int y);
 void SpecialInput(int key, int x, int y);
-void DrawText(int x, int y, std::string& text);
 
 //
 // ───────────────────────────────────────────────────────────────────────────────────────────
@@ -107,9 +106,10 @@ void OnDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glPixelZoom( 1, -1 );
-    glRasterPos2i(0, frame_high-1);
-    glDrawPixels(frame_wide, frame_high, GL_RGB,GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
-//	DrawText(100, 100, basic);
+    glRasterPos2i(0, frame_high - 1);
+
+	glDrawPixels(frame_wide, frame_high, GL_RGB, GL_UNSIGNED_BYTE, static_cast<GLubyte *>(pFrameR));
+
     glutSwapBuffers();
     glFlush();
 }
@@ -129,7 +129,6 @@ void OnKeypress(const unsigned char key, int x, int y)
 	switch (key) 
 	{ 
 		case ' ': xypos.x = xypos.y = 0; break;
-//		case 's': stereo ^= 1, eyes = 10;break;
 		case ']': eyes++;	break;
 		case '[': eyes--;	break;
 		case 'w': _meshManager.Rotate(GraphicsMath::Degrees(-10), GraphicsMath::Degrees(0),   GraphicsMath::Degrees(0));   break;
@@ -166,6 +165,11 @@ void SpecialInput(int key, int x, int y)
 
 //
 // ─── UTILITY FUNCTIONS ──────────────────────────────────────────────────────────
+//void DrawText(const int x, const int y, const std::string text)
+//{
+//	
+//}
+
 void ClearScreen()
 {
 	memset(pFrameL, 0, frame_wide * frame_high * 3);
@@ -187,7 +191,6 @@ void Interlace(BYTE* pL, BYTE* pR)
 void DrawFrame()
 {
 	ClearScreen();
-	
 	if (!_stereoDisplay) 
 	{
 		BuildFrame(pFrameR, 0);
@@ -197,16 +200,6 @@ void DrawFrame()
 		BuildFrame(pFrameL, -eyes);
 		BuildFrame(pFrameR, +eyes);
 		Interlace(static_cast<BYTE *>(pFrameL), static_cast<BYTE *>(pFrameR));
-	}
-}
-
-void DrawText(const int x, const int y, const std::string& text)
-{
-	glRasterPos2i(x, y);
-	glColor3i(255, 255, 255);
-	for (auto character : text)
-	{
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, character);
 	}
 }
 
